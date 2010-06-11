@@ -2,6 +2,10 @@
 
 <project name="logisima-play-yml" default="build" basedir=".">
 
+    <property name="debug" value="on" />
+    <property name="optimize" value="true" />
+    <property file="build.properties" />
+    
     <path id="project.classpath">
         <pathelement path="${play.path}/framework/classes"/>
         <fileset dir="${play.path}/framework/lib">
@@ -25,7 +29,7 @@
                 <include name="**/play.static"/>
             </fileset>
         </copy>
-        <jar destfile="lib/play-logisima-play-yml.jar" basedir="tmp/classes">
+        <jar destfile="lib/logisima-play-yml.jar" basedir="tmp/classes">
             <manifest>
                 <section name="Play-module">
                     <attribute name="Specification-Title" value="logisima-play-yml"/>
