@@ -45,6 +45,8 @@ import play.utils.Utils;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 public class YmlExtractor {
+    
+    private static final String TAB = "    ";
 
     public static void main(String[] args) throws Exception {
         // we initiate play! framework
@@ -97,7 +99,7 @@ public class YmlExtractor {
                         if (List.class.isInstance(field.get(jpaSupport))) {
                             List myList = (List) field.get(jpaSupport);
                             for (int i = 0; i < myList.size(); i++) {
-                                value = "\n\t\t- " + getObjectId(myList.get(i));
+                                value = "\n" + TAB + TAB + "- " + getObjectId(myList.get(i));
                             }
                         } else {
                             // if field is a Map
@@ -106,7 +108,7 @@ public class YmlExtractor {
                                 Iterator it = myMap.entrySet().iterator();
                                 while (it.hasNext()) {
                                     Object myObj = it.next();
-                                    value = "\n\t\t- " + getObjectId(myObj);
+                                    value = "\n" + TAB + TAB + "- " + getObjectId(myObj);
                                 }
                             }
                             else {
@@ -116,7 +118,7 @@ public class YmlExtractor {
                                     Iterator it = mySet.iterator();
                                     while (it.hasNext()) {
                                         Object myObj = it.next();
-                                        value = "\n\t\t- " + getObjectId(myObj);
+                                        value = "\n" + TAB + TAB + "- " + getObjectId(myObj);
                                     }
                                 }
                                 // otherwise, it's normal field
@@ -126,7 +128,7 @@ public class YmlExtractor {
                             }
                         }
 
-                        fop.write(("\t" + name + ":" + value + "\n").getBytes());
+                        fop.write((TAB + name + ":" + value + "\n").getBytes());
                     }
                 }
             }
