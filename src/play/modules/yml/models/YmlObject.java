@@ -18,39 +18,53 @@ package play.modules.yml.models;
 
 import java.util.ArrayList;
 
+/**
+ * Model class for yml object with children (important to generate yml filein a
+ * good way).
+ * 
+ * @author bsimard
+ * 
+ */
 public class YmlObject {
 
     private String id;
     private String ymlValue;
     private ArrayList<String> children = new ArrayList();
-    
+    private Boolean alreadyWrite = Boolean.FALSE;
+
     public YmlObject() {
         super();
     }
-    
+
     public String getId() {
         return id;
     }
-    
+
     public void setId(String id) {
         this.id = id;
     }
-    
+
     public String getYmlValue() {
         return ymlValue;
     }
-    
+
     public void setYmlValue(String ymlValue) {
         this.ymlValue = ymlValue;
     }
-    
+
     public ArrayList<String> getChildren() {
         return children;
     }
-    
+
     public void setChildren(ArrayList<String> children) {
         this.children = children;
-    } 
-    
-    
+    }
+
+    public Boolean isAlreadyWrite() {
+        return alreadyWrite;
+    }
+
+    public void setAlreadyWrite(Boolean alreadyWrite) {
+        this.alreadyWrite = alreadyWrite;
+    }
 }

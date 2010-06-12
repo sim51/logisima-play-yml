@@ -18,18 +18,11 @@ package play.modules.yml;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.Yaml;
-
-import play.Logger;
 import play.Play;
 import play.db.jpa.JPASupport;
 import play.modules.yml.models.YmlObject;
@@ -42,10 +35,12 @@ import play.modules.yml.models.YmlObject;
  */
 public class YmlExtractor {
     
+    private static HashMap<String, YmlObject> ymlObjects = new HashMap();
+    
     public static void main(String[] args) throws Exception {
         
         // we initiate play! framework
-        File root = new File(System.getProperty("application.path"));
+        File root = new File(System.getProperty("application.path", "/home/bsimard/workspace/LogiSima-bsimard"));
         Play.init(root, System.getProperty("play.id", ""));
 
         // we retrieve parameters
@@ -64,9 +59,6 @@ public class YmlExtractor {
 
         // get an entityManager to acces play DB
         EntityManager em = YmlExtractorUtil.iniateJPA();
-
-        // initiate Map that will contain all YmlObject
-        HashMap<String, YmlObject> ymlObjects = new HashMap();
         
         // we search all entities classes
         List<Class> entities = Play.classloader.getAnnotatedClasses(Entity.class);
