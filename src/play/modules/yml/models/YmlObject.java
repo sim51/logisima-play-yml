@@ -27,11 +27,29 @@ import java.util.ArrayList;
  */
 public class YmlObject {
 
+    /**
+     * id of object (ex: Article_1). 
+     */
     private String id;
+    
+    /**
+     * yml value of object.
+     */
     private String ymlValue;
+    
+    /**
+     * All children of object (foreign key).
+     */
     private ArrayList<String> children = new ArrayList();
+    
+    /**
+     * If object has already benn write.
+     */
     private Boolean alreadyWrite = Boolean.FALSE;
 
+    /**
+     * Constructor.
+     */
     public YmlObject() {
         super();
     }

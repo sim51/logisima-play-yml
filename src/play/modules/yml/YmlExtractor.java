@@ -35,8 +35,17 @@ import play.modules.yml.models.YmlObject;
  */
 public class YmlExtractor {
     
+    /**
+     * HashMap of all database object.
+     */
     private static HashMap<String, YmlObject> ymlObjects = new HashMap();
     
+    /**
+     * Main method !
+     * 
+     * @param args
+     * @throws Exception
+     */
     public static void main(String[] args) throws Exception {
         
         // we initiate play! framework
@@ -72,6 +81,9 @@ public class YmlExtractor {
                 ymlObjects.put(YmlExtractorUtil.getObjectId(jpaSupport), ymlObject);
             }
         }
+        
+        
+        // write yml file.
         YmlExtractorUtil.writeYml(output, filename, ymlObjects);
     }
 

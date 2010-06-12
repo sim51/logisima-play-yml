@@ -24,8 +24,10 @@ import subprocess
 
 if play_command == 'yml:help':
         print "~ Help for logisima-yml module"
-        print "~ "
-        print
+        print "~ Available commands are:"
+        print "~ ~~~~~~~~~~~~~~~~~~~~~~~"
+        print "~ generate       Export your database into yaml format (to file conf/data.yml)"
+        print       
         sys.exit(0)
 
 if play_command == "yml:generate":
