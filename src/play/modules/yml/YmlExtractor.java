@@ -1,12 +1,26 @@
+/**
+ *  This file is part of LogiSima.
+ *
+ *  LogiSima is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  LogiSima is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with LogiSima.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package play.modules.yml;
 
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -18,28 +32,17 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Id;
 import javax.persistence.Lob;
-import javax.persistence.PersistenceException;
 
 import org.apache.log4j.Level;
-import org.hibernate.CallbackException;
-import org.hibernate.EmptyInterceptor;
-import org.hibernate.collection.PersistentCollection;
 import org.hibernate.ejb.Ejb3Configuration;
-import org.hibernate.type.Type;
-
-import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import play.Logger;
 import play.Play;
-import play.PlayPlugin;
-import play.classloading.ApplicationClassloader;
-import play.db.DB;
-import play.db.jpa.JPA;
-import play.db.jpa.JPAPlugin;
 import play.db.jpa.JPASupport;
 import play.db.jpa.Model;
-import play.exceptions.JPAException;
 import play.utils.Utils;
+
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 public class YmlExtractor {
 
