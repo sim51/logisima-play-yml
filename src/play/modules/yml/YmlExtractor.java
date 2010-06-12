@@ -163,6 +163,16 @@ public class YmlExtractor {
         fop.close();
     }
 
+    /**
+     * Convert a (simple, not a scalar) field to a string for yml value.
+     *  
+     * @param jpaSupport
+     * @param field
+     * @return
+     * @throws IllegalArgumentException
+     * @throws IllegalAccessException
+     * @throws ParseException
+     */
     private static String field2Yml(Object jpaSupport, Field field) throws IllegalArgumentException, IllegalAccessException, ParseException {
         String value = "" + field.get(jpaSupport);
 
