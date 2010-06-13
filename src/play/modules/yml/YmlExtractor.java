@@ -49,7 +49,7 @@ public class YmlExtractor {
     public static void main(String[] args) throws Exception {
         
         // we initiate play! framework
-        File root = new File(System.getProperty("application.path", "/home/bsimard/workspace/LogiSima-bsimard"));
+        File root = new File(System.getProperty("application.path"));
         Play.init(root, System.getProperty("play.id", ""));
 
         // we retrieve parameters
