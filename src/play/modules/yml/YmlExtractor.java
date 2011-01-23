@@ -24,22 +24,22 @@ import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 
 import play.Play;
-import play.db.jpa.JPASupport;
+import play.db.jpa.JPABase;
 import play.modules.yml.models.YmlObject;
 
 /**
  * Main class of logisima-yml module.
  * 
  * @author bsimard
- *
+ * 
  */
 public class YmlExtractor {
-    
+
     /**
      * HashMap of all database object.
      */
     private static HashMap<String, YmlObject> ymlObjects = new HashMap();
-    
+
     /**
      * Main method !
      * 
@@ -47,7 +47,7 @@ public class YmlExtractor {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        
+
         // we initiate play! framework
         File root = new File(System.getProperty("application.path"));
         Play.init(root, System.getProperty("play.id", ""));
@@ -68,21 +68,21 @@ public class YmlExtractor {
 
         // get an entityManager to acces play DB
         EntityManager em = YmlExtractorUtil.iniateJPA();
-        
+
         // we search all entities classes
         List<Class> entities = Play.classloader.getAnnotatedClasses(Entity.class);
         for (Class entity : entities) {
 
             // we search all object for the specified class
-            List<JPASupport> objects = (List<JPASupport>) em.createQuery("select e from " + entity.getCanonicalName() + " as e").getResultList();
-            for (JPASupport jpaSupport : objects) {
-                
-                YmlObject ymlObject = YmlExtractorUtil.object2YmlObject(jpaSupport);
-                ymlObjects.put(YmlExtractorUtil.getObjectId(jpaSupport), ymlObject);
+            List<JPABase> objects = (List<JPABase>) em.createQuery(
+                    "select e from " + entity.getCanonicalName() + " as e").getResultList();
+            for (JPABase jpaBase : objects) {
+
+                YmlObject ymlObject = YmlExtractorUtil.object2YmlObject(jpaBase);
+                ymlObjects.put(YmlExtractorUtil.getObjectId(jpaBase), ymlObject);
             }
         }
-        
-        
+
         // write yml file.
         YmlExtractorUtil.writeYml(output, filename, ymlObjects);
     }

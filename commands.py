@@ -17,36 +17,57 @@
  #  along with LogiSima.  If not, see <http://www.gnu.org/licenses/>.
 ###
 
+# Here you can create play commands that are specific to the module, and extend existing commands
 import os, os.path
 import getopt
 import sys
 import subprocess
 
-if play_command == 'yml:help':
+MODULE = 'logisimayml'
+
+# Commands that are specific to your module
+
+COMMANDS = ['yml:help','yml:generate']
+
+def execute(**kargs):
+    command = kargs.get("command")
+    app = kargs.get("app")
+    args = kargs.get("args")
+    env = kargs.get("env")
+
+    if command == "yml:help":
         print "~ Help for logisima-yml module"
         print "~ Available commands are:"
         print "~ ~~~~~~~~~~~~~~~~~~~~~~~"
         print "~ generate       Export your database into yaml format (to file conf/data.yml)"
         print       
         sys.exit(0)
-
-if play_command == "yml:generate":
+    
+    if command == "yml:generate":
         print "~ Generating yml from the database"
         print "~ "
-        check_application()
-        load_modules()
-        do_classpath()
-        try:
-            # This is the new style to get the extra arg
-            do_java('play.modules.yml.YmlExtractor', sys.argv)
-        except Exception:
-            # For play! < 1.0.3
-            do_java('play.modules.yml.YmlExtractor')
+        java_cmd = app.java_cmd([], None, "play.modules.yml.YmlExtractor", args)
         try:
             subprocess.call(java_cmd, env=os.environ)
         except OSError:
             print "Could not execute the java executable, please make sure the JAVA_HOME environment variable is set properly (the java executable should reside at JAVA_HOME/bin/java). "
             sys.exit(-1)
         print
-        sys.exit(0)
+        
+# This will be executed before any command (new, run...)
+def before(**kargs):
+    command = kargs.get("command")
+    app = kargs.get("app")
+    args = kargs.get("args")
+    env = kargs.get("env")
 
+
+# This will be executed after any command (new, run...)
+def after(**kargs):
+    command = kargs.get("command")
+    app = kargs.get("app")
+    args = kargs.get("args")
+    env = kargs.get("env")
+
+    if command == "new":
+        pass
