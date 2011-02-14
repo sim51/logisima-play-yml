@@ -140,16 +140,20 @@ public class YmlExtractorUtil {
 
         // String value for the object
         String stringObject = "\n" + jpaBase.getClass().getCanonicalName() + "(" + getObjectId(jpaBase) + "):\n";
-        Logger.info("Generate YML for class id :" + getObjectId(jpaBase));
+        Logger.info("Generate YML for class id :" + getObjectId(jpaBase) + "(" + jpaBase.getClass().getFields().length
+                + "fields)");
+
         for (java.lang.reflect.Field field : jpaBase.getClass().getFields()) {
 
             // map that will contain all object field
             Map<String, Object> data = new HashMap<String, Object>();
 
             String name = field.getName();
-            Boolean valueIsSet = Boolean.FALSE;
-            Logger.debug("Generated field " + name);
-            if (field.isAccessible() && !name.equals("id") && !name.equals("willBeSaved")) {
+
+            if (!name.equals("id") && !name.equals("willBeSaved")) {
+
+                Boolean valueIsSet = Boolean.FALSE;
+                Logger.debug("Generated field " + name);
 
                 // if field is a List
                 if (List.class.isInstance(field.get(jpaBase))) {
@@ -171,7 +175,7 @@ public class YmlExtractorUtil {
 
                 // if field is a Map
                 if (Map.class.isInstance(field.get(jpaBase))) {
-                    Logger.debug("Field typeis Map");
+                    Logger.debug("Field type is Map");
                     Map myMap = (Map) field.get(jpaBase);
                     if (myMap != null && myMap.size() > 0) {
                         String[] tmpValues = new String[myMap.size()];

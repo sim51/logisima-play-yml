@@ -72,12 +72,11 @@ public class YmlExtractor {
         // we search all entities classes
         List<Class> entities = Play.classloader.getAnnotatedClasses(Entity.class);
         for (Class entity : entities) {
-
             // we search all object for the specified class
-            List<JPABase> objects = (List<JPABase>) em.createQuery(
-                    "select e from " + entity.getCanonicalName() + " as e").getResultList();
-            for (JPABase jpaBase : objects) {
+            List<JPABase> objects = (List<JPABase>) em.createQuery("SELECT E FROM " + entity.getSimpleName() + " E")
+                    .getResultList();
 
+            for (JPABase jpaBase : objects) {
                 YmlObject ymlObject = YmlExtractorUtil.object2YmlObject(jpaBase);
                 ymlObjects.put(YmlExtractorUtil.getObjectId(jpaBase), ymlObject);
             }
