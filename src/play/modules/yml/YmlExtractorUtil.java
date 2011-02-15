@@ -119,7 +119,7 @@ public class YmlExtractorUtil {
     }
 
     /**
-     * Method to concert an object to YmlObject.
+     * Method to convert an object to YmlObject.
      * 
      * @param jpaSupport
      * @return
@@ -164,8 +164,10 @@ public class YmlExtractorUtil {
                         for (int i = 0; i < myList.size(); i++) {
                             tmpValues[i] = getObjectId(myList.get(i));
                             // if myObj is an entity, we add it to children
-                            if (Model.class.isInstance(myList.get(i))) {
-                                ymlObject.getChildren().add(getObjectId(myList.get(i)));
+                            if (myList.get(i) != null && Model.class.isInstance(myList.get(i))) {
+                                if (getObjectId(myList.get(i)) != null) {
+                                    ymlObject.getChildren().add(getObjectId(myList.get(i)));
+                                }
                             }
                         }
                         data.put(name, tmpValues);
@@ -185,8 +187,10 @@ public class YmlExtractorUtil {
                             Object myObj = it.next();
                             tmpValues[i] = getObjectId(myObj);
                             // if myObj is an entity, we add it to children
-                            if (Model.class.isInstance(myObj)) {
-                                ymlObject.getChildren().add(getObjectId(myObj));
+                            if (myObj != null && Model.class.isInstance(myObj)) {
+                                if (getObjectId(myObj) != null) {
+                                    ymlObject.getChildren().add(getObjectId(myObj));
+                                }
                             }
                             i++;
                         }
@@ -207,8 +211,10 @@ public class YmlExtractorUtil {
                             Object myObj = it.next();
                             tmpValues[i] = getObjectId(myObj);
                             // if myObj is an entity, we add it to children
-                            if (Model.class.isInstance(myObj)) {
-                                ymlObject.getChildren().add(getObjectId(myObj));
+                            if (myObj != null && Model.class.isInstance(myObj)) {
+                                if (getObjectId(myObj) != null) {
+                                    ymlObject.getChildren().add(getObjectId(myObj));
+                                }
                             }
                             i++;
                         }
@@ -224,9 +230,11 @@ public class YmlExtractorUtil {
                 }
 
                 // if field is an object that extend Model
-                if (Model.class.isInstance(field.get(jpaBase))) {
-                    ymlObject.getChildren().add(getObjectId(field.get(jpaBase)));
-                    data.put(name, getObjectId(field.get(jpaBase)));
+                if (jpaBase != null && Model.class.isInstance(field.get(jpaBase))) {
+                    if (getObjectId(field.get(jpaBase)) != null) {
+                        ymlObject.getChildren().add(getObjectId(field.get(jpaBase)));
+                        data.put(name, getObjectId(field.get(jpaBase)));
+                    }
                     valueIsSet = Boolean.TRUE;
                 }
 
@@ -269,9 +277,12 @@ public class YmlExtractorUtil {
         JPABase jpaBase = (JPABase) object;
         String objectId = null;
         // if the object extend from the play's model class
-        if (jpaBase instanceof Model) {
+        if (jpaBase != null && jpaBase instanceof Model) {
             // we take the model id
-            objectId = ((Model) jpaBase).getClass().getSimpleName() + "_" + ((Model) jpaBase).id.toString();
+            Model myModel = ((Model) jpaBase);
+            objectId = myModel.getClass().getSimpleName();
+            objectId += "_";
+            objectId += myModel.id.toString();
         }
         // else we try to get value of the field with id annotation
         else {
