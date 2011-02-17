@@ -17,8 +17,10 @@
 package play.modules.yml;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
@@ -38,7 +40,8 @@ public class YmlExtractor {
     /**
      * HashMap of all database object.
      */
-    private static HashMap<String, YmlObject> ymlObjects = new HashMap();
+    public static Map<String, YmlObject> ymlObjects = (Map<String, YmlObject>) Collections
+                                                            .synchronizedMap(new HashMap<String, YmlObject>());
 
     /**
      * Main method !
@@ -83,7 +86,7 @@ public class YmlExtractor {
         }
 
         // write yml file.
-        YmlExtractorUtil.writeYml(output, filename, ymlObjects);
+        YmlExtractorUtil.writeYml(output, filename);
     }
 
 }
