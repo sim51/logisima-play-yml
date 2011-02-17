@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -41,7 +42,9 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 
 import org.apache.log4j.Level;
+import org.hibernate.Hibernate;
 import org.hibernate.ejb.Ejb3Configuration;
+import org.hibernate.proxy.HibernateProxy;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -109,6 +112,7 @@ public class YmlExtractorUtil {
             ymlObjects.put(object.getId(), object);
 
             if (object.getChildren().size() != 0) {
+                Logger.debug("NB of children for " + object.getId() + " is " + object.getChildren().size());
                 for (int i = 0; i < object.getChildren().size(); i++) {
                     ymlText += writeObject2Yml(ymlObjects, ymlObjects.get(object.getChildren().get(i)));
                 }
@@ -126,9 +130,12 @@ public class YmlExtractorUtil {
      * @throws IllegalArgumentException
      * @throws IllegalAccessException
      * @throws ParseException
+     * @throws NoSuchMethodException
+     * @throws SecurityException
+     * @throws InvocationTargetException
      */
     public static YmlObject object2YmlObject(JPABase jpaBase) throws IllegalArgumentException, IllegalAccessException,
-            ParseException {
+            ParseException, SecurityException, NoSuchMethodException, InvocationTargetException {
         // Init YAML
         DumperOptions options = new DumperOptions();
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
@@ -139,9 +146,15 @@ public class YmlExtractorUtil {
         ymlObject.setId(getObjectId(jpaBase));
 
         // String value for the object
-        String stringObject = "\n" + jpaBase.getClass().getCanonicalName() + "(" + getObjectId(jpaBase) + "):\n";
+        String stringObject = "\n" + getObjectClassName(jpaBase) + "(" + getObjectId(jpaBase) + "):\n";
         Logger.info("Generate YML for class id :" + getObjectId(jpaBase) + "(" + jpaBase.getClass().getFields().length
                 + "fields)");
+
+        if (jpaBase.getClass().getCanonicalName().contains("_$$_")) {
+            Hibernate.initialize(jpaBase);
+            HibernateProxy proxy = (HibernateProxy) jpaBase;
+            jpaBase = (JPABase) proxy.getHibernateLazyInitializer().getImplementation();
+        }
 
         for (java.lang.reflect.Field field : jpaBase.getClass().getFields()) {
 
@@ -155,114 +168,138 @@ public class YmlExtractorUtil {
                 Boolean valueIsSet = Boolean.FALSE;
                 Logger.debug("Generated field " + name);
 
-                // if field is a List
-                if (List.class.isInstance(field.get(jpaBase))) {
-                    Logger.debug("Field type is List");
-                    List myList = (List) field.get(jpaBase);
-                    if (!myList.isEmpty() && myList.size() > 0) {
-                        String[] tmpValues = new String[myList.size()];
-                        for (int i = 0; i < myList.size(); i++) {
-                            tmpValues[i] = getObjectId(myList.get(i));
-                            // if myObj is an entity, we add it to children
-                            if (myList.get(i) != null && Model.class.isInstance(myList.get(i))) {
-                                if (getObjectId(myList.get(i)) != null) {
+                if (field.get(jpaBase) != null) {
+
+                    // if field is a List
+                    if (List.class.isInstance(field.get(jpaBase))) {
+                        Logger.debug("Field " + name + " type is List");
+                        List myList = (List) field.get(jpaBase);
+                        if (!myList.isEmpty() && myList.size() > 0) {
+                            String[] tmpValues = new String[myList.size()];
+                            for (int i = 0; i < myList.size(); i++) {
+                                tmpValues[i] = getObjectId(myList.get(i));
+                                // if myObj is an entity, we add it to children
+                                if (Model.class.isInstance(myList.get(i))) {
                                     ymlObject.getChildren().add(getObjectId(myList.get(i)));
                                 }
                             }
+                            data.put(name, tmpValues);
                         }
-                        data.put(name, tmpValues);
+                        valueIsSet = Boolean.TRUE;
                     }
-                    valueIsSet = Boolean.TRUE;
-                }
 
-                // if field is a Map
-                if (Map.class.isInstance(field.get(jpaBase))) {
-                    Logger.debug("Field type is Map");
-                    Map myMap = (Map) field.get(jpaBase);
-                    if (myMap != null && myMap.size() > 0) {
-                        String[] tmpValues = new String[myMap.size()];
-                        Iterator it = myMap.entrySet().iterator();
-                        int i = 0;
-                        while (it.hasNext()) {
-                            Object myObj = it.next();
-                            tmpValues[i] = getObjectId(myObj);
-                            // if myObj is an entity, we add it to children
-                            if (myObj != null && Model.class.isInstance(myObj)) {
-                                if (getObjectId(myObj) != null) {
-                                    ymlObject.getChildren().add(getObjectId(myObj));
+                    // if field is a Map
+                    if (Map.class.isInstance(field.get(jpaBase))) {
+                        Logger.debug("Field  " + name + " type is Map");
+                        Map myMap = (Map) field.get(jpaBase);
+                        if (myMap != null && myMap.size() > 0) {
+                            String[] tmpValues = new String[myMap.size()];
+                            Iterator it = myMap.entrySet().iterator();
+                            int i = 0;
+                            while (it.hasNext()) {
+                                Object myObj = it.next();
+                                tmpValues[i] = getObjectId(myObj);
+                                // if myObj is an entity, we add it to children
+                                if (myObj != null && Model.class.isInstance(myObj)) {
+                                    if (getObjectId(myObj) != null) {
+                                        ymlObject.getChildren().add(getObjectId(myObj));
+                                    }
                                 }
+                                i++;
                             }
-                            i++;
+                            data.put(name, tmpValues);
                         }
-                        data.put(name, tmpValues);
+                        valueIsSet = Boolean.TRUE;
                     }
-                    valueIsSet = Boolean.TRUE;
-                }
 
-                // if field is a Set
-                if (Set.class.isInstance(field.get(jpaBase))) {
-                    Logger.debug("Field type is Set");
-                    Set mySet = (Set) field.get(jpaBase);
-                    if (mySet != null && mySet.size() > 0) {
-                        String[] tmpValues = new String[mySet.size()];
-                        Iterator it = mySet.iterator();
-                        int i = 0;
-                        while (it.hasNext()) {
-                            Object myObj = it.next();
-                            tmpValues[i] = getObjectId(myObj);
-                            // if myObj is an entity, we add it to children
-                            if (myObj != null && Model.class.isInstance(myObj)) {
-                                if (getObjectId(myObj) != null) {
-                                    ymlObject.getChildren().add(getObjectId(myObj));
+                    // if field is a Set
+                    if (Set.class.isInstance(field.get(jpaBase))) {
+                        Logger.debug("Field  " + name + " type is Set");
+                        Set mySet = (Set) field.get(jpaBase);
+                        if (mySet != null && mySet.size() > 0) {
+                            String[] tmpValues = new String[mySet.size()];
+                            Iterator it = mySet.iterator();
+                            int i = 0;
+                            while (it.hasNext()) {
+                                Object myObj = it.next();
+                                tmpValues[i] = getObjectId(myObj);
+                                // if myObj is an entity, we add it to children
+                                if (myObj != null && Model.class.isInstance(myObj)) {
+                                    if (getObjectId(myObj) != null) {
+                                        ymlObject.getChildren().add(getObjectId(myObj));
+                                    }
                                 }
+                                i++;
                             }
-                            i++;
+                            data.put(name, tmpValues);
                         }
-                        data.put(name, tmpValues);
+                        valueIsSet = Boolean.TRUE;
                     }
-                    valueIsSet = Boolean.TRUE;
-                }
 
-                // if Lob annotation, then bigtext
-                if (field.isAnnotationPresent(Lob.class)) {
-                    data.put(name, field.get(jpaBase).toString());
-                    valueIsSet = Boolean.TRUE;
-                }
+                    // if Lob annotation, then bigtext
+                    if (field.isAnnotationPresent(Lob.class)) {
+                        Logger.debug("Field  " + name + " type is a Lob");
+                        if (field.get(jpaBase) != null) {
+                            data.put(name, field.get(jpaBase).toString());
+                        }
+                        valueIsSet = Boolean.TRUE;
+                    }
 
-                // if field is an object that extend Model
-                if (jpaBase != null && Model.class.isInstance(field.get(jpaBase))) {
-                    if (getObjectId(field.get(jpaBase)) != null) {
+                    // if field is an object that extend Model
+                    if (jpaBase != null && Model.class.isInstance(field.get(jpaBase))) {
+                        Logger.debug("Field  " + name + " type is a Model");
                         ymlObject.getChildren().add(getObjectId(field.get(jpaBase)));
                         data.put(name, getObjectId(field.get(jpaBase)));
+                        valueIsSet = Boolean.TRUE;
                     }
-                    valueIsSet = Boolean.TRUE;
-                }
 
-                // if field is a date
-                if (Date.class.isInstance(field.get(jpaBase))) {
-                    SimpleDateFormat sdf = new SimpleDateFormat("yy-MM-dd hh:mm:ss");
-                    DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-                    Date myDate = (Date) sdf.parse(field.get(jpaBase).toString());
-                    data.put(name, df.format(myDate));
-                    valueIsSet = Boolean.TRUE;
-                }
+                    // if field is a date
+                    if (Date.class.isInstance(field.get(jpaBase))) {
+                        Logger.debug("Field  " + name + " type is Date");
+                        SimpleDateFormat sdf = new SimpleDateFormat("yy-MM-dd hh:mm:ss");
+                        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                        Date myDate = (Date) sdf.parse(field.get(jpaBase).toString());
+                        data.put(name, df.format(myDate));
+                        valueIsSet = Boolean.TRUE;
+                    }
 
-                // otherwise ...
-                if (!valueIsSet) {
-                    String tmpValue = "" + field.get(jpaBase);
-                    data.put(name, tmpValue);
-                }
+                    // otherwise ...
+                    if (!valueIsSet) {
+                        Logger.debug("Field  " + name + " type is ??");
+                        String tmpValue = "" + field.get(jpaBase);
+                        data.put(name, tmpValue);
+                        valueIsSet = Boolean.TRUE;
+                    }
 
-                // yml indentation
-                String value = yaml.dump(data).replaceAll("^", TAB);
-                // a little hack for scalar ... I have to find a better solution
-                value = value.replaceAll("- ", TAB + "- ");
-                stringObject += value;
+                    if (valueIsSet && !data.isEmpty()) {
+                        // yml indentation
+                        String value = yaml.dump(data).replaceAll("^", TAB);
+                        // a little hack for scalar ... I have to find a
+                        // better solution
+                        value = value.replaceAll("- ", TAB + "- ");
+                        // a little hack for tab String empty
+                        stringObject += value;
+                    }
+                }
             }
         }
         ymlObject.setYmlValue(stringObject);
 
         return ymlObject;
+    }
+
+    /**
+     * Method that return classname the object.
+     * 
+     * @param Object
+     * @return real className
+     */
+    public static String getObjectClassName(Object object) {
+        String classname = object.getClass().getSimpleName();
+        if (classname.contains("_$$_")) {
+            classname = classname.split("_")[0];
+        }
+        return classname;
     }
 
     /**
@@ -280,9 +317,9 @@ public class YmlExtractorUtil {
         if (jpaBase != null && jpaBase instanceof Model) {
             // we take the model id
             Model myModel = ((Model) jpaBase);
-            objectId = myModel.getClass().getSimpleName();
+            objectId = getObjectClassName(object);
             objectId += "_";
-            objectId += myModel.id.toString();
+            objectId += myModel.getId();
         }
         // else we try to get value of the field with id annotation
         else {
@@ -296,6 +333,13 @@ public class YmlExtractorUtil {
             if (fieldId != null) {
                 objectId = fieldId.get(jpaBase).toString();
             }
+        }
+
+        // here we delete proxy annotation for classname (due to lazy, see
+        // javassist)
+        if (object.getClass().getCanonicalName().contains("_$$_javassist_")) {
+            String[] elements = object.getClass().getCanonicalName().split("_");
+            objectId = getObjectClassName(object) + "_" + elements[elements.length - 1];
         }
 
         return objectId;
