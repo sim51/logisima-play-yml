@@ -150,6 +150,7 @@ public class YmlExtractorUtil {
         Logger.info("Generate YML for class id :" + getObjectId(jpaBase) + "(" + jpaBase.getClass().getFields().length
                 + "fields)");
 
+        // if class is a javassist class
         if (jpaBase.getClass().getCanonicalName().contains("_$$_")) {
             Hibernate.initialize(jpaBase);
             HibernateProxy proxy = (HibernateProxy) jpaBase;
@@ -332,13 +333,6 @@ public class YmlExtractorUtil {
             if (fieldId != null) {
                 objectId = fieldId.get(jpaBase).toString();
             }
-        }
-
-        // here we delete proxy annotation for classname (due to lazy, see
-        // javassist)
-        if (object.getClass().getCanonicalName().contains("_$$_javassist_")) {
-            String[] elements = object.getClass().getCanonicalName().split("_");
-            objectId = getObjectClassName(object) + "_" + elements[elements.length - 1];
         }
 
         return objectId;
