@@ -27,7 +27,7 @@ MODULE = 'logisimayml'
 
 # Commands that are specific to your module
 
-COMMANDS = ['yml:help','yml:generate']
+COMMANDS = ['yml:help','yml:generate','yml:import']
 
 def execute(**kargs):
     command = kargs.get("command")
@@ -40,6 +40,11 @@ def execute(**kargs):
         print "~ Available commands are:"
         print "~ ~~~~~~~~~~~~~~~~~~~~~~~"
         print "~ generate       Export your database into yaml format (to file conf/data.yml)"
+        print "~     with --filename you can specify the yaml filename file (without the yml extension !)"
+        print "~     with --output you can specify the directory where yaml file will be written (conf by default)"
+        print "~ import         Import an yaml file (conf/data.yml by default) to database"
+        print "~     with --filename you can specify the yaml filename file (without the yml extension !)"
+        print "~     with --input you can specify the directory where yaml file will be read (conf by default)"
         print       
         sys.exit(0)
     
@@ -54,20 +59,20 @@ def execute(**kargs):
             sys.exit(-1)
         print
         
+    if command == "yml:import":
+        print "~ Import yml to database"
+        print "~ "
+        java_cmd = app.java_cmd([], None, "play.modules.yml.YmlImport", args)
+        try:
+            subprocess.call(java_cmd, env=os.environ)
+        except OSError:
+            print "Could not execute the java executable, please make sure the JAVA_HOME environment variable is set properly (the java executable should reside at JAVA_HOME/bin/java). "
+            sys.exit(-1)
+        print
+        
 # This will be executed before any command (new, run...)
 def before(**kargs):
     command = kargs.get("command")
     app = kargs.get("app")
     args = kargs.get("args")
     env = kargs.get("env")
-
-
-# This will be executed after any command (new, run...)
-def after(**kargs):
-    command = kargs.get("command")
-    app = kargs.get("app")
-    args = kargs.get("args")
-    env = kargs.get("env")
-
-    if command == "new":
-        pass

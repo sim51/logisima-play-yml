@@ -43,18 +43,8 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 
 import org.apache.log4j.Level;
-import org.hibernate.Hibernate;
-import org.hibernate.ejb.Ejb3Configuration;
-import org.hibernate.proxy.HibernateProxy;
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.Yaml;
 
-import play.Logger;
-import play.Play;
-import play.db.jpa.JPABase;
-import play.db.jpa.Model;
 import play.modules.yml.models.YmlObject;
-import play.utils.Utils;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
@@ -256,6 +246,8 @@ public class YmlExtractorUtil {
                     // if field is a date
                     if (Date.class.isInstance(field.get(jpaBase))) {
                         Logger.debug("Field  " + name + " type is Date");
+                        // TODO: in case of temporal JPA annotation
+
                         SimpleDateFormat sdf = new SimpleDateFormat("yy-MM-dd hh:mm:ss");
                         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
                         Date myDate = (Date) sdf.parse(field.get(jpaBase).toString());
@@ -339,8 +331,7 @@ public class YmlExtractorUtil {
     }
 
     /**
-     * Method to get the DB dialect. Note: this method is a copy of play!
-     * framework code (but it's private ...)
+     * Method to get the DB dialect. Note: this method is a copy of play! framework code (but it's private ...)
      * 
      * @param driver
      * @return String
@@ -378,8 +369,7 @@ public class YmlExtractorUtil {
     }
 
     /**
-     * Method that return a Play EntytManager. Note: this method is a copy of
-     * play! framework code.
+     * Method that return a Play EntytManager. Note: this method is a copy of play! framework code.
      * 
      * @return EntityManager
      * @throws PropertyVetoException
