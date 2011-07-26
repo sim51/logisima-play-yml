@@ -68,7 +68,11 @@ public class YmlExtractor {
                 }
             }
         }
+        mainWork(filename, output);
 
+    }
+
+    public static void mainWork(String filename, String output) throws Exception {
         // get an entityManager to acces play DB
         EntityManager em = YmlExtractorUtil.iniateJPA();
 

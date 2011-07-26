@@ -2,10 +2,11 @@
 <classpath>
 	<classpathentry excluding="views/**" kind="src" path="app"/>
 	<classpathentry kind="src" path="test"/>
-	<classpathentry kind="src" path="crud"/><classpathentry kind="src" path="logisima-play-yml"/>
+	<classpathentry kind="src" path="crud"/>
+	<classpathentry kind="src" path="logisima-play-yml"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/usr/local/play/play-1.2.1/framework/play-1.2.1.jar"/>
-	<classpathentry kind="lib" path="/home/bsimard/workspace_logisima/logisima-play-yml/lib/logisima-play-yml.jar"/>
+	<classpathentry kind="lib" path="/home/bsimard/workspace_logisima/logisima-play-yml/lib/logisima-play-yml.jar" sourcepath="/logisima-play-yml"/>
 	<classpathentry kind="lib" path="/usr/local/play/play-1.2.1/framework/lib/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="/usr/local/play/play-1.2.1/framework/lib/commons-email-1.2.jar"/>
 	<classpathentry kind="lib" path="/usr/local/play/play-1.2.1/framework/lib/jj-simplecaptcha.jar"/>
@@ -59,6 +60,5 @@
 	<classpathentry kind="lib" path="/usr/local/play/play-1.2.1/framework/lib/commons-javaflow-1066591.jar"/>
 	<classpathentry kind="lib" path="/usr/local/play/play-1.2.1/framework/lib/ehcache-core-2.0.0.jar"/>
 	<classpathentry kind="lib" path="/usr/local/play/play-1.2.1/framework/lib/signpost-core-1.2.jar"/>
-	
 	<classpathentry kind="output" path="eclipse/classes"/>
 </classpath>

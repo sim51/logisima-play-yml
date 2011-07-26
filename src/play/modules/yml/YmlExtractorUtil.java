@@ -20,7 +20,6 @@ import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
@@ -41,10 +40,26 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
+import javax.persistence.PersistenceException;
 
 import org.apache.log4j.Level;
+import org.hibernate.Hibernate;
+import org.hibernate.ejb.Ejb3Configuration;
+import org.hibernate.proxy.HibernateProxy;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
 
+import play.Logger;
+import play.Play;
+import play.classloading.ApplicationClasses.ApplicationClass;
+import play.db.DB;
+import play.db.DBPlugin;
+import play.db.jpa.JPABase;
+import play.db.jpa.JPAPlugin;
+import play.db.jpa.Model;
+import play.exceptions.JPAException;
 import play.modules.yml.models.YmlObject;
+import play.utils.Utils;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
@@ -333,25 +348,103 @@ public class YmlExtractorUtil {
     /**
      * Method to get the DB dialect. Note: this method is a copy of play! framework code (but it's private ...)
      * 
+     * @see JPAPlugin.getDefaultDialect
+     * 
      * @param driver
      * @return String
      */
     public static String getDefaultDialect(String driver) {
-        if (driver != null && driver.equals("org.hsqldb.jdbcDriver")) {
-            return "org.hibernate.dialect.HSQLDialect";
+        String dialect = Play.configuration.getProperty("jpa.dialect");
+        if (dialect != null) {
+            return dialect;
         }
         else
-            if (driver != null && driver.equals("com.mysql.jdbc.Driver")) {
-                return "play.db.jpa.MySQLDialect";
+            if (driver.equals("org.h2.Driver")) {
+                return "org.hibernate.dialect.H2Dialect";
             }
-            else {
-                String dialect = Play.configuration.getProperty("jpa.dialect");
-                if (dialect != null) {
-                    return dialect;
+            else
+                if (driver.equals("org.hsqldb.jdbcDriver")) {
+                    return "org.hibernate.dialect.HSQLDialect";
                 }
-                throw new UnsupportedOperationException("I do not know which hibernate dialect to use with " + driver
-                        + ", use the property jpa.dialect in config file");
-            }
+                else
+                    if (driver.equals("com.mysql.jdbc.Driver")) {
+                        return "play.db.jpa.MySQLDialect";
+                    }
+                    else
+                        if (driver.equals("org.postgresql.Driver")) {
+                            return "org.hibernate.dialect.PostgreSQLDialect";
+                        }
+                        else
+                            if (driver.toLowerCase().equals("com.ibm.db2.jdbc.app.DB2Driver")) {
+                                return "org.hibernate.dialect.DB2Dialect";
+                            }
+                            else
+                                if (driver.equals("com.ibm.as400.access.AS400JDBCDriver")) {
+                                    return "org.hibernate.dialect.DB2400Dialect";
+                                }
+                                else
+                                    if (driver.equals("com.ibm.as400.access.AS390JDBCDriver")) {
+                                        return "org.hibernate.dialect.DB2390Dialect";
+                                    }
+                                    else
+                                        if (driver.equals("oracle.jdbc.driver.OracleDriver")) {
+                                            return "org.hibernate.dialect.Oracle9iDialect";
+                                        }
+                                        else
+                                            if (driver.equals("com.sybase.jdbc2.jdbc.SybDriver")) {
+                                                return "org.hibernate.dialect.SybaseAnywhereDialect";
+                                            }
+                                            else
+                                                if ("com.microsoft.jdbc.sqlserver.SQLServerDriver".equals(driver)) {
+                                                    return "org.hibernate.dialect.SQLServerDialect";
+                                                }
+                                                else
+                                                    if ("com.sap.dbtech.jdbc.DriverSapDB".equals(driver)) {
+                                                        return "org.hibernate.dialect.SAPDBDialect";
+                                                    }
+                                                    else
+                                                        if ("com.informix.jdbc.IfxDriver".equals(driver)) {
+                                                            return "org.hibernate.dialect.InformixDialect";
+                                                        }
+                                                        else
+                                                            if ("com.ingres.jdbc.IngresDriver".equals(driver)) {
+                                                                return "org.hibernate.dialect.IngresDialect";
+                                                            }
+                                                            else
+                                                                if ("progress.sql.jdbc.JdbcProgressDriver"
+                                                                        .equals(driver)) {
+                                                                    return "org.hibernate.dialect.ProgressDialect";
+                                                                }
+                                                                else
+                                                                    if ("com.mckoi.JDBCDriver".equals(driver)) {
+                                                                        return "org.hibernate.dialect.MckoiDialect";
+                                                                    }
+                                                                    else
+                                                                        if ("InterBase.interclient.Driver"
+                                                                                .equals(driver)) {
+                                                                            return "org.hibernate.dialect.InterbaseDialect";
+                                                                        }
+                                                                        else
+                                                                            if ("com.pointbase.jdbc.jdbcUniversalDriver"
+                                                                                    .equals(driver)) {
+                                                                                return "org.hibernate.dialect.PointbaseDialect";
+                                                                            }
+                                                                            else
+                                                                                if ("com.frontbase.jdbc.FBJDriver"
+                                                                                        .equals(driver)) {
+                                                                                    return "org.hibernate.dialect.FrontbaseDialect";
+                                                                                }
+                                                                                else
+                                                                                    if ("org.firebirdsql.jdbc.FBDriver"
+                                                                                            .equals(driver)) {
+                                                                                        return "org.hibernate.dialect.FirebirdDialect";
+                                                                                    }
+                                                                                    else {
+                                                                                        throw new UnsupportedOperationException(
+                                                                                                "I do not know which hibernate dialect to use with "
+                                                                                                        + driver
+                                                                                                        + " and I cannot guess it, use the property jpa.dialect in config file");
+                                                                                    }
     }
 
     public static Boolean isFieldHasMappedByInAnnotation(Field field) {
@@ -371,40 +464,54 @@ public class YmlExtractorUtil {
     /**
      * Method that return a Play EntytManager. Note: this method is a copy of play! framework code.
      * 
+     * @see JPAPlugin.onApplicationStart
+     * @see DBPlugin.onApplicationStart
      * @return EntityManager
      * @throws PropertyVetoException
      */
     public static EntityManager iniateJPA() throws PropertyVetoException {
-        Properties p = Play.configuration;
-        ComboPooledDataSource ds = new ComboPooledDataSource();
-        ds.setDriverClass(p.getProperty("db.driver"));
-        ds.setJdbcUrl(p.getProperty("db.url"));
-        ds.setUser(p.getProperty("db.user"));
-        ds.setPassword(p.getProperty("db.pass"));
-        ds.setAcquireRetryAttempts(1);
-        ds.setAcquireRetryDelay(0);
-        ds.setCheckoutTimeout(Integer.parseInt(p.getProperty("db.pool.timeout", "5000")));
-        ds.setBreakAfterAcquireFailure(true);
-        ds.setMaxPoolSize(Integer.parseInt(p.getProperty("db.pool.maxSize", "30")));
-        ds.setMinPoolSize(Integer.parseInt(p.getProperty("db.pool.minSize", "1")));
-        ds.setTestConnectionOnCheckout(true);
-
         List<Class> classes = Play.classloader.getAnnotatedClasses(Entity.class);
+
         Ejb3Configuration cfg = new Ejb3Configuration();
-        cfg.setDataSource(ds);
-        if (!Play.configuration.getProperty("jpa.ddl", "update").equals("none")) {
+
+        if (DB.datasource != null) {
+            cfg.setDataSource(DB.datasource);
+        }
+        else {
+            Properties p = Play.configuration;
+            System.setProperty("com.mchange.v2.log.MLog", "com.mchange.v2.log.FallbackMLog");
+            System.setProperty("com.mchange.v2.log.FallbackMLog.DEFAULT_CUTOFF_LEVEL", "OFF");
+            ComboPooledDataSource ds = new ComboPooledDataSource();
+            ds.setDriverClass(p.getProperty("db.driver"));
+            ds.setJdbcUrl(p.getProperty("db.url"));
+            ds.setUser(p.getProperty("db.user"));
+            ds.setPassword(p.getProperty("db.pass"));
+            ds.setAcquireRetryAttempts(10);
+            ds.setCheckoutTimeout(Integer.parseInt(p.getProperty("db.pool.timeout", "5000")));
+            ds.setBreakAfterAcquireFailure(false);
+            ds.setMaxPoolSize(Integer.parseInt(p.getProperty("db.pool.maxSize", "30")));
+            ds.setMinPoolSize(Integer.parseInt(p.getProperty("db.pool.minSize", "1")));
+            ds.setMaxIdleTimeExcessConnections(Integer.parseInt(p.getProperty("db.pool.maxIdleTimeExcessConnections",
+                    "0")));
+            ds.setIdleConnectionTestPeriod(10);
+            ds.setTestConnectionOnCheckin(true);
+            cfg.setDataSource(ds);
+        }
+
+        if (!Play.configuration.getProperty("jpa.ddl", Play.mode.isDev() ? "update" : "none").equals("none")) {
             cfg.setProperty("hibernate.hbm2ddl.auto", Play.configuration.getProperty("jpa.ddl", "update"));
         }
-        cfg.setProperty("hibernate.dialect", getDefaultDialect(Play.configuration.getProperty("jpa.dialect")));
+
+        cfg.setProperty("hibernate.dialect", getDefaultDialect(Play.configuration.getProperty("db.driver")));
         cfg.setProperty("javax.persistence.transaction", "RESOURCE_LOCAL");
+
         if (Play.configuration.getProperty("jpa.debugSQL", "false").equals("true")) {
             org.apache.log4j.Logger.getLogger("org.hibernate.SQL").setLevel(Level.ALL);
         }
         else {
             org.apache.log4j.Logger.getLogger("org.hibernate.SQL").setLevel(Level.OFF);
         }
-        // inject additional hibernate.* settings declared in Play!
-        // configuration
+        // inject additional hibernate.* settings declared in Play! configuration
         cfg.addProperties((Properties) Utils.Maps.filterMap(Play.configuration, "^hibernate\\..*"));
 
         try {
@@ -414,7 +521,7 @@ public class YmlExtractorUtil {
         } catch (Exception e) {
             Logger.error(e, "Error trying to override the hibernate classLoader (new hibernate version ???)");
         }
-        for (Class<? extends Annotation> clazz : classes) {
+        for (Class<?> clazz : classes) {
             if (clazz.isAnnotationPresent(Entity.class)) {
                 cfg.addAnnotatedClass(clazz);
                 Logger.trace("JPA Model : %s", clazz);
@@ -422,16 +529,34 @@ public class YmlExtractorUtil {
         }
         String[] moreEntities = Play.configuration.getProperty("jpa.entities", "").split(", ");
         for (String entity : moreEntities) {
-            if (entity.trim().equals(""))
+            if (entity.trim().equals("")) {
                 continue;
+            }
             try {
                 cfg.addAnnotatedClass(Play.classloader.loadClass(entity));
             } catch (Exception e) {
                 Logger.warn("JPA -> Entity not found: %s", entity);
             }
         }
+        for (ApplicationClass applicationClass : Play.classes.all()) {
+            if (applicationClass.isClass() || applicationClass.javaPackage == null) {
+                continue;
+            }
+            Package p = applicationClass.javaPackage;
+            Logger.info("JPA -> Adding package: %s", p.getName());
+            cfg.addPackage(p.getName());
+        }
+        String mappingFile = Play.configuration.getProperty("jpa.mapping-file", "");
+        if (mappingFile != null && mappingFile.length() > 0) {
+            cfg.addResource(mappingFile);
+        }
         Logger.trace("Initializing JPA ...");
-        EntityManagerFactory entityManagerFactory = cfg.buildEntityManagerFactory();
-        return entityManagerFactory.createEntityManager();
+        try {
+            EntityManagerFactory entityManagerFactory = cfg.buildEntityManagerFactory();
+            return entityManagerFactory.createEntityManager();
+        } catch (PersistenceException e) {
+            throw new JPAException(e.getMessage(), e.getCause() != null ? e.getCause() : e);
+        }
+
     }
 }
