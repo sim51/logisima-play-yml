@@ -1,4 +1,4 @@
-package models;
+package models.test;
 
 import java.util.Date;
 import java.util.List;
@@ -15,26 +15,26 @@ import play.data.validation.MaxSize;
 import play.db.jpa.Model;
 
 @Entity
-public class Post extends Model {
+public class Post2 extends Model {
 
-    public String        title;
+    public String         title;
 
-    public Date          postedAt;
+    public Date           postedAt;
 
     @Lob
     @MaxSize(1000)
-    public String        content;
+    public String         content;
 
     @ManyToOne
-    public User          author;
+    public User2          author;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    public List<Comment> comments;
+    public List<Comment2> comments;
 
     @ManyToMany(cascade = CascadeType.PERSIST)
-    public Set<Tag>      tags;
+    public Set<Tag2>      tags;
 
-    public int compareTo(Post post) {
+    public int compareTo(Post2 post) {
         final int NOT_EQUAL = -1;
         final int EQUAL = 0;
 

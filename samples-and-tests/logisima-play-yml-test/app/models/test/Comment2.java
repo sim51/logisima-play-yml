@@ -1,4 +1,4 @@
-package models;
+package models.test;
 
 import javax.persistence.Entity;
 import javax.persistence.Lob;
@@ -9,13 +9,13 @@ import play.data.validation.Required;
 import play.db.jpa.Model;
 
 @Entity
-public class Comment extends Model {
+public class Comment2 extends Model {
 
     @Required
     public String author;
 
     @Required
-    public Date   postedAt;
+    public Date2  postedAt;
 
     @Lob
     @Required
@@ -24,9 +24,9 @@ public class Comment extends Model {
 
     @ManyToOne
     @Required
-    public Post   post;
+    public Post2   post;
 
-    public int compareTo(Comment comment) {
+    public int compareTo(Comment2 comment) {
         final int NOT_EQUAL = -1;
         final int EQUAL = 0;
 

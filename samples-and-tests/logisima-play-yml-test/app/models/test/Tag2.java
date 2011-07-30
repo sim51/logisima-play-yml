@@ -1,15 +1,15 @@
-package models;
+package models.test;
 
 import javax.persistence.Entity;
 
 import play.db.jpa.Model;
 
 @Entity
-public class Tag extends Model {
+public class Tag2 extends Model {
 
     public String name;
 
-    public int compareTo(Tag tag) {
+    public int compareTo(Tag2 tag) {
         final int NOT_EQUAL = -1;
         final int EQUAL = 0;
 

@@ -15,9 +15,9 @@
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.playframework.playclipse.playNature</nature>
 	</natures>
-	<linkedResources><link><name>crud</name><type>2</type><location>/usr/local/play/play-1.2.1/modules/crud/app</location></link>
-<link><name>conf/crud</name><type>2</type><location>/usr/local/play/play-1.2.1/modules/crud/conf</location></link>
-<link><name>public/crud</name><type>2</type><location>/usr/local/play/play-1.2.1/modules/crud/public</location></link>
+	<linkedResources><link><name>crud</name><type>2</type><location>/usr/local/play/play-1.2.2/modules/crud/app</location></link>
+<link><name>conf/crud</name><type>2</type><location>/usr/local/play/play-1.2.2/modules/crud/conf</location></link>
+<link><name>public/crud</name><type>2</type><location>/usr/local/play/play-1.2.2/modules/crud/public</location></link>
 <link><name>logisima-play-yml</name><type>2</type><location>/home/bsimard/workspace_logisima/logisima-play-yml/app</location></link>
 </linkedResources>
 </projectDescription>

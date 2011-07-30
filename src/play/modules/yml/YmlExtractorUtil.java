@@ -25,6 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -40,6 +41,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.PersistenceException;
 
 import org.apache.log4j.Level;
@@ -54,6 +56,7 @@ import play.Play;
 import play.classloading.ApplicationClasses.ApplicationClass;
 import play.db.DB;
 import play.db.DBPlugin;
+import play.db.jpa.GenericModel;
 import play.db.jpa.JPABase;
 import play.db.jpa.JPAPlugin;
 import play.db.jpa.Model;
@@ -184,7 +187,7 @@ public class YmlExtractorUtil {
                             for (int i = 0; i < myList.size(); i++) {
                                 tmpValues[i] = getObjectId(myList.get(i));
                                 // if myObj is an entity, we add it to children
-                                if (Model.class.isInstance(myList.get(i))) {
+                                if (GenericModel.class.isInstance(myList.get(i))) {
                                     ymlObject.getChildren().add(getObjectId(myList.get(i)));
                                 }
                             }
@@ -205,7 +208,7 @@ public class YmlExtractorUtil {
                                 Object myObj = it.next();
                                 tmpValues[i] = getObjectId(myObj);
                                 // if myObj is an entity, we add it to children
-                                if (myObj != null && Model.class.isInstance(myObj)) {
+                                if (myObj != null && GenericModel.class.isInstance(myObj)) {
                                     if (getObjectId(myObj) != null) {
                                         ymlObject.getChildren().add(getObjectId(myObj));
                                     }
@@ -229,7 +232,7 @@ public class YmlExtractorUtil {
                                 Object myObj = it.next();
                                 tmpValues[i] = getObjectId(myObj);
                                 // if myObj is an entity, we add it to children
-                                if (myObj != null && Model.class.isInstance(myObj)) {
+                                if (myObj != null && GenericModel.class.isInstance(myObj)) {
                                     if (getObjectId(myObj) != null) {
                                         ymlObject.getChildren().add(getObjectId(myObj));
                                     }
@@ -250,22 +253,27 @@ public class YmlExtractorUtil {
                         valueIsSet = Boolean.TRUE;
                     }
 
-                    // if field is an object that extend Model
-                    if (jpaBase != null && Model.class.isInstance(field.get(jpaBase))) {
+                    // if field is an object that extend GenericModel
+                    if (jpaBase != null && GenericModel.class.isInstance(field.get(jpaBase))) {
                         Logger.debug("Field  " + name + " type is a Model");
-                        ymlObject.getChildren().add(getObjectId(field.get(jpaBase)));
-                        data.put(name, getObjectId(field.get(jpaBase)));
+                        if (!field.isAnnotationPresent(ManyToOne.class)) {
+                            ymlObject.getChildren().add(getObjectId(field.get(jpaBase)));
+                            data.put(name, getObjectId(field.get(jpaBase)));
+                        }
                         valueIsSet = Boolean.TRUE;
                     }
 
                     // if field is a date
-                    if (Date.class.isInstance(field.get(jpaBase))) {
+                    if (Date.class.isInstance(field.get(jpaBase)) | Calendar.class.isInstance(field.get(jpaBase))) {
                         Logger.debug("Field  " + name + " type is Date");
-                        // TODO: in case of temporal JPA annotation
-
-                        SimpleDateFormat sdf = new SimpleDateFormat("yy-MM-dd hh:mm:ss");
-                        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-                        Date myDate = (Date) sdf.parse(field.get(jpaBase).toString());
+                        Date myDate = null;
+                        if (Date.class.isInstance(field.get(jpaBase))) {
+                            myDate = (Date) field.get(jpaBase);
+                        }
+                        else {
+                            myDate = ((Calendar) field.get(jpaBase)).getTime();
+                        }
+                        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                         data.put(name, df.format(myDate));
                         valueIsSet = Boolean.TRUE;
                     }
@@ -358,93 +366,67 @@ public class YmlExtractorUtil {
         if (dialect != null) {
             return dialect;
         }
-        else
-            if (driver.equals("org.h2.Driver")) {
-                return "org.hibernate.dialect.H2Dialect";
-            }
-            else
-                if (driver.equals("org.hsqldb.jdbcDriver")) {
-                    return "org.hibernate.dialect.HSQLDialect";
-                }
-                else
-                    if (driver.equals("com.mysql.jdbc.Driver")) {
-                        return "play.db.jpa.MySQLDialect";
-                    }
-                    else
-                        if (driver.equals("org.postgresql.Driver")) {
-                            return "org.hibernate.dialect.PostgreSQLDialect";
-                        }
-                        else
-                            if (driver.toLowerCase().equals("com.ibm.db2.jdbc.app.DB2Driver")) {
-                                return "org.hibernate.dialect.DB2Dialect";
-                            }
-                            else
-                                if (driver.equals("com.ibm.as400.access.AS400JDBCDriver")) {
-                                    return "org.hibernate.dialect.DB2400Dialect";
-                                }
-                                else
-                                    if (driver.equals("com.ibm.as400.access.AS390JDBCDriver")) {
-                                        return "org.hibernate.dialect.DB2390Dialect";
-                                    }
-                                    else
-                                        if (driver.equals("oracle.jdbc.driver.OracleDriver")) {
-                                            return "org.hibernate.dialect.Oracle9iDialect";
-                                        }
-                                        else
-                                            if (driver.equals("com.sybase.jdbc2.jdbc.SybDriver")) {
-                                                return "org.hibernate.dialect.SybaseAnywhereDialect";
-                                            }
-                                            else
-                                                if ("com.microsoft.jdbc.sqlserver.SQLServerDriver".equals(driver)) {
-                                                    return "org.hibernate.dialect.SQLServerDialect";
-                                                }
-                                                else
-                                                    if ("com.sap.dbtech.jdbc.DriverSapDB".equals(driver)) {
-                                                        return "org.hibernate.dialect.SAPDBDialect";
-                                                    }
-                                                    else
-                                                        if ("com.informix.jdbc.IfxDriver".equals(driver)) {
-                                                            return "org.hibernate.dialect.InformixDialect";
-                                                        }
-                                                        else
-                                                            if ("com.ingres.jdbc.IngresDriver".equals(driver)) {
-                                                                return "org.hibernate.dialect.IngresDialect";
-                                                            }
-                                                            else
-                                                                if ("progress.sql.jdbc.JdbcProgressDriver"
-                                                                        .equals(driver)) {
-                                                                    return "org.hibernate.dialect.ProgressDialect";
-                                                                }
-                                                                else
-                                                                    if ("com.mckoi.JDBCDriver".equals(driver)) {
-                                                                        return "org.hibernate.dialect.MckoiDialect";
-                                                                    }
-                                                                    else
-                                                                        if ("InterBase.interclient.Driver"
-                                                                                .equals(driver)) {
-                                                                            return "org.hibernate.dialect.InterbaseDialect";
-                                                                        }
-                                                                        else
-                                                                            if ("com.pointbase.jdbc.jdbcUniversalDriver"
-                                                                                    .equals(driver)) {
-                                                                                return "org.hibernate.dialect.PointbaseDialect";
-                                                                            }
-                                                                            else
-                                                                                if ("com.frontbase.jdbc.FBJDriver"
-                                                                                        .equals(driver)) {
-                                                                                    return "org.hibernate.dialect.FrontbaseDialect";
-                                                                                }
-                                                                                else
-                                                                                    if ("org.firebirdsql.jdbc.FBDriver"
-                                                                                            .equals(driver)) {
-                                                                                        return "org.hibernate.dialect.FirebirdDialect";
-                                                                                    }
-                                                                                    else {
-                                                                                        throw new UnsupportedOperationException(
-                                                                                                "I do not know which hibernate dialect to use with "
-                                                                                                        + driver
-                                                                                                        + " and I cannot guess it, use the property jpa.dialect in config file");
-                                                                                    }
+        else if (driver.equals("org.h2.Driver")) {
+            return "org.hibernate.dialect.H2Dialect";
+        }
+        else if (driver.equals("org.hsqldb.jdbcDriver")) {
+            return "org.hibernate.dialect.HSQLDialect";
+        }
+        else if (driver.equals("com.mysql.jdbc.Driver")) {
+            return "play.db.jpa.MySQLDialect";
+        }
+        else if (driver.equals("org.postgresql.Driver")) {
+            return "org.hibernate.dialect.PostgreSQLDialect";
+        }
+        else if (driver.toLowerCase().equals("com.ibm.db2.jdbc.app.DB2Driver")) {
+            return "org.hibernate.dialect.DB2Dialect";
+        }
+        else if (driver.equals("com.ibm.as400.access.AS400JDBCDriver")) {
+            return "org.hibernate.dialect.DB2400Dialect";
+        }
+        else if (driver.equals("com.ibm.as400.access.AS390JDBCDriver")) {
+            return "org.hibernate.dialect.DB2390Dialect";
+        }
+        else if (driver.equals("oracle.jdbc.driver.OracleDriver")) {
+            return "org.hibernate.dialect.Oracle9iDialect";
+        }
+        else if (driver.equals("com.sybase.jdbc2.jdbc.SybDriver")) {
+            return "org.hibernate.dialect.SybaseAnywhereDialect";
+        }
+        else if ("com.microsoft.jdbc.sqlserver.SQLServerDriver".equals(driver)) {
+            return "org.hibernate.dialect.SQLServerDialect";
+        }
+        else if ("com.sap.dbtech.jdbc.DriverSapDB".equals(driver)) {
+            return "org.hibernate.dialect.SAPDBDialect";
+        }
+        else if ("com.informix.jdbc.IfxDriver".equals(driver)) {
+            return "org.hibernate.dialect.InformixDialect";
+        }
+        else if ("com.ingres.jdbc.IngresDriver".equals(driver)) {
+            return "org.hibernate.dialect.IngresDialect";
+        }
+        else if ("progress.sql.jdbc.JdbcProgressDriver".equals(driver)) {
+            return "org.hibernate.dialect.ProgressDialect";
+        }
+        else if ("com.mckoi.JDBCDriver".equals(driver)) {
+            return "org.hibernate.dialect.MckoiDialect";
+        }
+        else if ("InterBase.interclient.Driver".equals(driver)) {
+            return "org.hibernate.dialect.InterbaseDialect";
+        }
+        else if ("com.pointbase.jdbc.jdbcUniversalDriver".equals(driver)) {
+            return "org.hibernate.dialect.PointbaseDialect";
+        }
+        else if ("com.frontbase.jdbc.FBJDriver".equals(driver)) {
+            return "org.hibernate.dialect.FrontbaseDialect";
+        }
+        else if ("org.firebirdsql.jdbc.FBDriver".equals(driver)) {
+            return "org.hibernate.dialect.FirebirdDialect";
+        }
+        else {
+            throw new UnsupportedOperationException("I do not know which hibernate dialect to use with " + driver
+                    + " and I cannot guess it, use the property jpa.dialect in config file");
+        }
     }
 
     public static Boolean isFieldHasMappedByInAnnotation(Field field) {

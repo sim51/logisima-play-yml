@@ -1,4 +1,4 @@
-package models;
+package models.test;
 
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -7,7 +7,7 @@ import javax.persistence.Id;
 import play.db.jpa.GenericModel;
 
 @Entity
-public class User extends GenericModel {
+public class User2 extends GenericModel {
 
     @Id
     public String  email;
@@ -17,11 +17,11 @@ public class User extends GenericModel {
     public String  fullname;
 
     @Embedded
-    public Address addess;
+    public Address2 addess;
 
     public boolean isAdmin;
 
-    public int compareTo(User user) {
+    public int compareTo(User2 user) {
         final int NOT_EQUAL = -1;
         final int EQUAL = 0;
 

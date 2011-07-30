@@ -1,4 +1,4 @@
-package models;
+package models.test;
 
 import java.util.Calendar;
 
@@ -9,7 +9,7 @@ import javax.persistence.TemporalType;
 import play.db.jpa.Model;
 
 @Entity
-public class Date extends Model {
+public class Date2 extends Model {
 
     public java.util.Date date1;
 
@@ -30,7 +30,7 @@ public class Date extends Model {
     @Temporal(TemporalType.TIMESTAMP)
     public Calendar       cal4;
 
-    public int compareTo(Date date) {
+    public int compareTo(Date2 date) {
         final int NOT_EQUAL = -1;
         final int EQUAL = 0;
 
