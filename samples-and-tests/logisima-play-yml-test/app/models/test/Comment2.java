@@ -15,7 +15,7 @@ public class Comment2 extends Model {
     public String author;
 
     @Required
-    public Date2  postedAt;
+    public Date2   postedAt;
 
     @Lob
     @Required

@@ -17,13 +17,13 @@ import play.db.jpa.Model;
 @Entity
 public class Post2 extends Model {
 
-    public String         title;
+    public String        title;
 
-    public Date           postedAt;
+    public Date          postedAt;
 
     @Lob
     @MaxSize(1000)
-    public String         content;
+    public String        content;
 
     @ManyToOne
     public User2          author;

@@ -6,7 +6,7 @@
 	<classpathentry kind="src" path="logisima-play-yml"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/usr/local/play/play-1.2.2/framework/play-1.2.2.jar" sourcepath="/usr/local/play/play-1.2.2/framework/src"/>
-	<classpathentry kind="lib" path="/home/bsimard/workspace_logisima/logisima-play-yml/lib/logisima-play-yml.jar"/>
+	<classpathentry kind="lib" path="/home/bsimard/workspace_logisima/logisima-play-yml/lib/logisima-play-yml.jar" sourcepath="/logisima-play-yml"/>
 	<classpathentry kind="lib" path="/usr/local/play/play-1.2.2/framework/lib/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="/usr/local/play/play-1.2.2/framework/lib/commons-email-1.2.jar"/>
 	<classpathentry kind="lib" path="/usr/local/play/play-1.2.2/framework/lib/jj-simplecaptcha.jar"/>
