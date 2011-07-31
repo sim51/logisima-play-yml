@@ -9,7 +9,7 @@ import javax.persistence.TemporalType;
 import play.db.jpa.Model;
 
 @Entity
-public class Date2 extends Model {
+public class Date2 extends Model implements java.lang.Comparable {
 
     public java.util.Date date1;
 
@@ -30,32 +30,9 @@ public class Date2 extends Model {
     @Temporal(TemporalType.TIMESTAMP)
     public Calendar       cal4;
 
-    public int compareTo(Date2 date) {
-        final int NOT_EQUAL = -1;
-        final int EQUAL = 0;
-
-        if (!this.date1.equals(date.date1)) {
-            return NOT_EQUAL;
-        }
-        if (!this.date2.equals(date.date2)) {
-            return NOT_EQUAL;
-        }
-        if (!this.date3.equals(date.date3)) {
-            return NOT_EQUAL;
-        }
-        if (!this.date4.equals(date.date4)) {
-            return NOT_EQUAL;
-        }
-        if (!this.cal1.equals(date.cal1)) {
-            return NOT_EQUAL;
-        }
-        if (!this.cal2.equals(date.cal2)) {
-            return NOT_EQUAL;
-        }
-        if (!this.cal4.equals(date.cal4)) {
-            return NOT_EQUAL;
-        }
-        return EQUAL;
+    @Override
+    public int compareTo(Object o) {
+        Date2 d = (Date2) o;
+        return date1.compareTo(d.date1);
     }
-
 }

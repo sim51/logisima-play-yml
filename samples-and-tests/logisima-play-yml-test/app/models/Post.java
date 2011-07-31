@@ -11,11 +11,12 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import models.test.Post2;
 import play.data.validation.MaxSize;
 import play.db.jpa.Model;
 
 @Entity
-public class Post extends Model {
+public class Post extends Model implements java.lang.Comparable {
 
     public String        title;
 
@@ -34,7 +35,7 @@ public class Post extends Model {
     @ManyToMany(cascade = CascadeType.PERSIST)
     public Set<Tag>      tags;
 
-    public int compareTo(Post post) {
+    public int compareTo(Post2 post) {
         final int NOT_EQUAL = -1;
         final int EQUAL = 0;
 
@@ -47,7 +48,7 @@ public class Post extends Model {
         if (!this.content.equals(post.content)) {
             return NOT_EQUAL;
         }
-        if (!this.author.equals(post.author)) {
+        if (this.author.compareTo(post.author) != 0) {
             return NOT_EQUAL;
         }
         if (this.comments.size() != post.comments.size()) {
@@ -57,6 +58,12 @@ public class Post extends Model {
             return NOT_EQUAL;
         }
         return EQUAL;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        Post post = (Post) o;
+        return postedAt.compareTo(post.postedAt);
     }
 
 }

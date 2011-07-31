@@ -15,15 +15,15 @@ import play.data.validation.MaxSize;
 import play.db.jpa.Model;
 
 @Entity
-public class Post2 extends Model {
+public class Post2 extends Model implements java.lang.Comparable {
 
-    public String        title;
+    public String         title;
 
-    public Date          postedAt;
+    public Date           postedAt;
 
     @Lob
     @MaxSize(1000)
-    public String        content;
+    public String         content;
 
     @ManyToOne
     public User2          author;
@@ -34,29 +34,10 @@ public class Post2 extends Model {
     @ManyToMany(cascade = CascadeType.PERSIST)
     public Set<Tag2>      tags;
 
-    public int compareTo(Post2 post) {
-        final int NOT_EQUAL = -1;
-        final int EQUAL = 0;
-
-        if (!this.title.equals(post.title)) {
-            return NOT_EQUAL;
-        }
-        if (!this.postedAt.equals(post.postedAt)) {
-            return NOT_EQUAL;
-        }
-        if (!this.content.equals(post.content)) {
-            return NOT_EQUAL;
-        }
-        if (!this.author.equals(post.author)) {
-            return NOT_EQUAL;
-        }
-        if (this.comments.size() != post.comments.size()) {
-            return NOT_EQUAL;
-        }
-        if (this.tags.size() != post.tags.size()) {
-            return NOT_EQUAL;
-        }
-        return EQUAL;
+    @Override
+    public int compareTo(Object o) {
+        Post2 p = (Post2) o;
+        return postedAt.compareTo(p.postedAt);
     }
 
 }

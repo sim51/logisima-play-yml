@@ -35,13 +35,14 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 
 import org.apache.log4j.Level;
@@ -121,6 +122,8 @@ public class YmlExtractorUtil {
                 }
             }
             ymlText += object.getYmlValue();
+            // a hack for embedded object and !!class
+            ymlText = ymlText.replaceAll("!!models.*", "");
         }
         return ymlText;
     }
@@ -142,6 +145,7 @@ public class YmlExtractorUtil {
         // Init YAML
         DumperOptions options = new DumperOptions();
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        options.setCanonical(false);
         Yaml yaml = new Yaml(options);
 
         // Initialization of YmlObject
@@ -161,7 +165,6 @@ public class YmlExtractorUtil {
         }
 
         for (java.lang.reflect.Field field : jpaBase.getClass().getFields()) {
-            // map that will contain all object field
             Map<String, Object> data = new HashMap<String, Object>();
 
             String name = field.getName();
@@ -182,7 +185,8 @@ public class YmlExtractorUtil {
                             for (int i = 0; i < myList.size(); i++) {
                                 tmpValues[i] = getObjectId(myList.get(i));
                                 // if myObj is an entity, we add it to children
-                                if (GenericModel.class.isInstance(myList.get(i))) {
+                                if (GenericModel.class.isInstance(myList.get(i))
+                                        && !field.isAnnotationPresent(OneToMany.class)) {
                                     ymlObject.getChildren().add(getObjectId(myList.get(i)));
                                 }
                             }
@@ -203,7 +207,8 @@ public class YmlExtractorUtil {
                                 Object myObj = it.next();
                                 tmpValues[i] = getObjectId(myObj);
                                 // if myObj is an entity, we add it to children
-                                if (myObj != null && GenericModel.class.isInstance(myObj)) {
+                                if (myObj != null && GenericModel.class.isInstance(myObj)
+                                        && !field.isAnnotationPresent(OneToMany.class)) {
                                     if (getObjectId(myObj) != null) {
                                         ymlObject.getChildren().add(getObjectId(myObj));
                                     }
@@ -227,7 +232,8 @@ public class YmlExtractorUtil {
                                 Object myObj = it.next();
                                 tmpValues[i] = getObjectId(myObj);
                                 // if myObj is an entity, we add it to children
-                                if (myObj != null && GenericModel.class.isInstance(myObj)) {
+                                if (myObj != null && GenericModel.class.isInstance(myObj)
+                                        && !field.isAnnotationPresent(OneToMany.class)) {
                                     if (getObjectId(myObj) != null) {
                                         ymlObject.getChildren().add(getObjectId(myObj));
                                     }
@@ -251,10 +257,8 @@ public class YmlExtractorUtil {
                     // if field is an object that extend Model
                     if (jpaBase != null && GenericModel.class.isInstance(field.get(jpaBase))) {
                         Logger.debug("Field " + name + " type is a Model");
-                        if (!field.isAnnotationPresent(ManyToOne.class)) {
-                            ymlObject.getChildren().add(getObjectId(field.get(jpaBase)));
-                            data.put(name, getObjectId(field.get(jpaBase)));
-                        }
+                        ymlObject.getChildren().add(getObjectId(field.get(jpaBase)));
+                        data.put(name, getObjectId(field.get(jpaBase)));
                         valueIsSet = Boolean.TRUE;
                     }
 
@@ -291,6 +295,13 @@ public class YmlExtractorUtil {
                         Date date = cal.getTime();
                         SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
                         data.put(name, sd.format(date));
+                        valueIsSet = Boolean.TRUE;
+                    }
+
+                    // if field is an Embedded
+                    if (field.isAnnotationPresent(Embedded.class)) {
+                        Logger.debug("Field " + name + " is an embedded");
+                        data.put(field.getName(), field.get(jpaBase));
                         valueIsSet = Boolean.TRUE;
                     }
 
@@ -396,9 +407,9 @@ public class YmlExtractorUtil {
         Boolean bool = Boolean.FALSE;
 
         // try with ManyToMany
-        ManyToMany annotation = field.getAnnotation(ManyToMany.class);
-        if (annotation != null) {
-            if (annotation.mappedBy() != null) {
+        if (field.isAnnotationPresent(ManyToMany.class)) {
+            ManyToMany annotation = field.getAnnotation(ManyToMany.class);
+            if (!annotation.mappedBy().isEmpty()) {
                 bool = Boolean.TRUE;
             }
         }

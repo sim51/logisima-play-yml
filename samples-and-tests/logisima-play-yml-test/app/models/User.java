@@ -4,10 +4,11 @@ import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+import models.test.User2;
 import play.db.jpa.GenericModel;
 
 @Entity
-public class User extends GenericModel {
+public class User extends GenericModel implements java.lang.Comparable {
 
     @Id
     public String  email;
@@ -21,7 +22,7 @@ public class User extends GenericModel {
 
     public boolean isAdmin;
 
-    public int compareTo(User user) {
+    public int compareTo(User2 user) {
         final int NOT_EQUAL = -1;
         final int EQUAL = 0;
 
@@ -41,5 +42,11 @@ public class User extends GenericModel {
             return NOT_EQUAL;
         }
         return EQUAL;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        User u = (User) o;
+        return email.compareTo(u.email);
     }
 }

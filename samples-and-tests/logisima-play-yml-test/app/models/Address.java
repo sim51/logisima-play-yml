@@ -2,6 +2,8 @@ package models;
 
 import javax.persistence.Embeddable;
 
+import models.test.Address2;
+
 @Embeddable
 public class Address {
 
@@ -15,7 +17,7 @@ public class Address {
 
     public String  country;
 
-    public int compareTo(Address adr) {
+    public int compareTo(Address2 adr) {
         final int NOT_EQUAL = -1;
         final int EQUAL = 0;
 

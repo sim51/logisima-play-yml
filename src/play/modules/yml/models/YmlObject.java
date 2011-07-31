@@ -19,8 +19,7 @@ package play.modules.yml.models;
 import java.util.ArrayList;
 
 /**
- * Model class for yml object with children (important to generate yml filein a
- * good way).
+ * Model class for yml object with children (important to generate yml filein a good way).
  * 
  * @author bsimard
  * 
@@ -28,24 +27,29 @@ import java.util.ArrayList;
 public class YmlObject {
 
     /**
-     * id of object (ex: Article_1). 
+     * id of object (ex: Article_1).
      */
-    private String id;
-    
+    private String            id;
+
     /**
      * yml value of object.
      */
-    private String ymlValue;
-    
+    private String            ymlValue;
+
     /**
      * All children of object (foreign key).
      */
-    private ArrayList<String> children = new ArrayList();
-    
+    private ArrayList<String> children     = new ArrayList();
+
+    /**
+     * All embedded of object (foreign key).
+     */
+    private ArrayList<String> embeddeds    = new ArrayList();
+
     /**
      * If object has already benn write.
      */
-    private Boolean alreadyWrite = Boolean.FALSE;
+    private Boolean           alreadyWrite = Boolean.FALSE;
 
     /**
      * Constructor.

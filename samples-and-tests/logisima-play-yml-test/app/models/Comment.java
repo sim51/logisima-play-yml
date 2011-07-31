@@ -4,29 +4,30 @@ import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 
+import models.test.Comment2;
 import play.data.validation.MaxSize;
 import play.data.validation.Required;
 import play.db.jpa.Model;
 
 @Entity
-public class Comment extends Model {
+public class Comment extends Model implements java.lang.Comparable {
 
     @Required
-    public String author;
+    public String         author;
 
     @Required
-    public Date   postedAt;
+    public java.util.Date postedAt;
 
     @Lob
     @Required
     @MaxSize(10000)
-    public String content;
+    public String         content;
 
     @ManyToOne
     @Required
-    public Post   post;
+    public Post           post;
 
-    public int compareTo(Comment comment) {
+    public int compareTo(Comment2 comment) {
         final int NOT_EQUAL = -1;
         final int EQUAL = 0;
 
@@ -43,6 +44,12 @@ public class Comment extends Model {
             return NOT_EQUAL;
         }
         return EQUAL;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        Comment cmt = (Comment) o;
+        return postedAt.compareTo(cmt.postedAt);
     }
 
 }
