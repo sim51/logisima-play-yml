@@ -19,7 +19,7 @@ package play.modules.yml.models;
 import java.util.ArrayList;
 
 /**
- * Model class for yml object with children (important to generate yml filein a good way).
+ * Model class for yml object with children (important to generate yml file in a good way).
  * 
  * @author bsimard
  * 
@@ -37,17 +37,17 @@ public class YmlObject {
     private String            ymlValue;
 
     /**
-     * All children of object (foreign key).
+     * All children object (foreign key).
      */
     private ArrayList<String> children     = new ArrayList();
 
     /**
-     * All embedded of object (foreign key).
+     * All embedded object (foreign key).
      */
     private ArrayList<String> embeddeds    = new ArrayList();
 
     /**
-     * If object has already benn write.
+     * If object has already been write.
      */
     private Boolean           alreadyWrite = Boolean.FALSE;
 

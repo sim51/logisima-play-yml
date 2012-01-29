@@ -185,8 +185,7 @@ public class YmlExtractorUtil {
                             for (int i = 0; i < myList.size(); i++) {
                                 tmpValues[i] = getObjectId(myList.get(i));
                                 // if myObj is an entity, we add it to children
-                                if (GenericModel.class.isInstance(myList.get(i))
-                                        && !field.isAnnotationPresent(OneToMany.class)) {
+                                if (GenericModel.class.isInstance(myList.get(i))) {
                                     ymlObject.getChildren().add(getObjectId(myList.get(i)));
                                 }
                             }
@@ -207,8 +206,7 @@ public class YmlExtractorUtil {
                                 Object myObj = it.next();
                                 tmpValues[i] = getObjectId(myObj);
                                 // if myObj is an entity, we add it to children
-                                if (myObj != null && GenericModel.class.isInstance(myObj)
-                                        && !field.isAnnotationPresent(OneToMany.class)) {
+                                if (myObj != null && GenericModel.class.isInstance(myObj)) {
                                     if (getObjectId(myObj) != null) {
                                         ymlObject.getChildren().add(getObjectId(myObj));
                                     }
@@ -232,8 +230,7 @@ public class YmlExtractorUtil {
                                 Object myObj = it.next();
                                 tmpValues[i] = getObjectId(myObj);
                                 // if myObj is an entity, we add it to children
-                                if (myObj != null && GenericModel.class.isInstance(myObj)
-                                        && !field.isAnnotationPresent(OneToMany.class)) {
+                                if (myObj != null && GenericModel.class.isInstance(myObj)) {
                                     if (getObjectId(myObj) != null) {
                                         ymlObject.getChildren().add(getObjectId(myObj));
                                     }
@@ -409,6 +406,13 @@ public class YmlExtractorUtil {
         // try with ManyToMany
         if (field.isAnnotationPresent(ManyToMany.class)) {
             ManyToMany annotation = field.getAnnotation(ManyToMany.class);
+            if (!annotation.mappedBy().isEmpty()) {
+                bool = Boolean.TRUE;
+            }
+        }
+        // try with OneToMany
+        if (field.isAnnotationPresent(OneToMany.class)) {
+            OneToMany annotation = field.getAnnotation(OneToMany.class);
             if (!annotation.mappedBy().isEmpty()) {
                 bool = Boolean.TRUE;
             }
