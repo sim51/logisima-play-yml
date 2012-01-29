@@ -19,10 +19,10 @@
 -- Table structure for table `comment`
 --
 
-DROP TABLE IF EXISTS `comment`;
+DROP TABLE IF EXISTS `Comment`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `comment` (
+CREATE TABLE `Comment` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `author` varchar(255) DEFAULT NULL,
   `content` longtext,
@@ -34,23 +34,23 @@ CREATE TABLE `comment` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `comment`
+-- Dumping data for table `Comment`
 --
 
-LOCK TABLES `comment` WRITE;
-/*!40000 ALTER TABLE `comment` DISABLE KEYS */;
-INSERT INTO `comment` VALUES (1,'Guest','You are right !\n',NULL,1),(2,'Mike','I knew that ...\n',NULL,1),(3,'Tom','This post is useless ?\n',NULL,2);
-/*!40000 ALTER TABLE `comment` ENABLE KEYS */;
+LOCK TABLES `Comment` WRITE;
+/*!40000 ALTER TABLE `Comment` DISABLE KEYS */;
+INSERT INTO `Comment` VALUES (1,'Guest','You are right !\n',NULL,1),(2,'Mike','I knew that ...\n',NULL,1),(3,'Tom','This post is useless ?\n',NULL,2);
+/*!40000 ALTER TABLE `Comment` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `date`
+-- Table structure for table `Date`
 --
 
-DROP TABLE IF EXISTS `date`;
+DROP TABLE IF EXISTS `Date`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `date` (
+CREATE TABLE `Date` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `cal1` datetime DEFAULT NULL,
   `cal2` date DEFAULT NULL,
@@ -67,20 +67,20 @@ CREATE TABLE `date` (
 -- Dumping data for table `date`
 --
 
-LOCK TABLES `date` WRITE;
-/*!40000 ALTER TABLE `date` DISABLE KEYS */;
-INSERT INTO `date` VALUES (1,'2009-07-25 13:42:51','2010-07-26','2011-07-25 13:42:51','2012-07-25 13:49:42','2013-07-25','13:49:42','2014-07-25 13:49:42');
-/*!40000 ALTER TABLE `date` ENABLE KEYS */;
+LOCK TABLES `Date` WRITE;
+/*!40000 ALTER TABLE `Date` DISABLE KEYS */;
+INSERT INTO `Date` VALUES (1,'2009-07-25 13:42:51','2010-07-26','2011-07-25 13:42:51','2012-07-25 13:49:42','2013-07-25','13:49:42','2014-07-25 13:49:42');
+/*!40000 ALTER TABLE `Date` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
 -- Table structure for table `post`
 --
 
-DROP TABLE IF EXISTS `post`;
+DROP TABLE IF EXISTS `Post`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `post` (
+CREATE TABLE `Post` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `content` longtext,
   `postedAt` datetime DEFAULT NULL,
@@ -95,20 +95,20 @@ CREATE TABLE `post` (
 -- Dumping data for table `post`
 --
 
-LOCK TABLES `post` WRITE;
-/*!40000 ALTER TABLE `post` DISABLE KEYS */;
-INSERT INTO `post` VALUES (1,'The model has a central position in a Play! application. It is the domain-specific representation of the information on which the application operates.\nMartin fowler defines it as :\nResponsible for representing concepts of the business, information about the business situation, and business rules. State that reflects the business situation is controlled and used here, even though the technical details of storing it are delegated to the infrastructure. This layer is the heart of business software.\n','2009-06-14 02:00:00','About the model layer','bob@gmail.com'),(2,'Well, it\'s just a test.\n','2009-03-25 01:00:00','Just a test of YABE','bob@gmail.com'),(3,'A Play! application follows the MVC architectural pattern as applied to the architecture of the Web.\nThis pattern splits the application into separate layers: the Presentation layer and the Model layer. The Presentation layer is further split into a View and a Controller layer.\n','2009-06-06 02:00:00','The MVC application','jeff@gmail.com');
-/*!40000 ALTER TABLE `post` ENABLE KEYS */;
+LOCK TABLES `Post` WRITE;
+/*!40000 ALTER TABLE `Post` DISABLE KEYS */;
+INSERT INTO `Post` VALUES (1,'The model has a central position in a Play! application. It is the domain-specific representation of the information on which the application operates.\nMartin fowler defines it as :\nResponsible for representing concepts of the business, information about the business situation, and business rules. State that reflects the business situation is controlled and used here, even though the technical details of storing it are delegated to the infrastructure. This layer is the heart of business software.\n','2009-06-14 02:00:00','About the model layer','bob@gmail.com'),(2,'Well, it\'s just a test.\n','2009-03-25 01:00:00','Just a test of YABE','bob@gmail.com'),(3,'A Play! application follows the MVC architectural pattern as applied to the architecture of the Web.\nThis pattern splits the application into separate layers: the Presentation layer and the Model layer. The Presentation layer is further split into a View and a Controller layer.\n','2009-06-06 02:00:00','The MVC application','jeff@gmail.com');
+/*!40000 ALTER TABLE `Post` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `post_tag`
+-- Table structure for table `Post_Tag`
 --
 
-DROP TABLE IF EXISTS `post_tag`;
+DROP TABLE IF EXISTS `Post_Tag`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `post_tag` (
+CREATE TABLE `Post_Tag` (
   `Post_id` bigint(20) NOT NULL,
   `tags_id` bigint(20) NOT NULL,
   PRIMARY KEY (`Post_id`,`tags_id`),
@@ -121,20 +121,20 @@ CREATE TABLE `post_tag` (
 -- Dumping data for table `post_tag`
 --
 
-LOCK TABLES `post_tag` WRITE;
-/*!40000 ALTER TABLE `post_tag` DISABLE KEYS */;
-INSERT INTO `post_tag` VALUES (1,5),(1,6),(2,7),(3,5),(3,6),(3,8);
-/*!40000 ALTER TABLE `post_tag` ENABLE KEYS */;
+LOCK TABLES `Post_Tag` WRITE;
+/*!40000 ALTER TABLE `Post_Tag` DISABLE KEYS */;
+INSERT INTO `Post_Tag` VALUES (1,5),(1,6),(2,7),(3,5),(3,6),(3,8);
+/*!40000 ALTER TABLE `Post_Tag` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `tag`
+-- Table structure for table `Tag`
 --
 
-DROP TABLE IF EXISTS `tag`;
+DROP TABLE IF EXISTS `Tag`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `tag` (
+CREATE TABLE `Tag` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -142,23 +142,23 @@ CREATE TABLE `tag` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `tag`
+-- Dumping data for table `Tag`
 --
 
-LOCK TABLES `tag` WRITE;
-/*!40000 ALTER TABLE `tag` DISABLE KEYS */;
-INSERT INTO `tag` VALUES (1,'Play'),(2,'Architecture'),(3,'Test'),(4,'MVC');
-/*!40000 ALTER TABLE `tag` ENABLE KEYS */;
+LOCK TABLES `Tag` WRITE;
+/*!40000 ALTER TABLE `Tag` DISABLE KEYS */;
+INSERT INTO `Tag` VALUES (1,'Play'),(2,'Architecture'),(3,'Test'),(4,'MVC');
+/*!40000 ALTER TABLE `Tag` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `user`
+-- Table structure for table `User`
 --
 
-DROP TABLE IF EXISTS `user`;
+DROP TABLE IF EXISTS `User`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `user` (
+CREATE TABLE `User` (
   `email` varchar(255) NOT NULL,
   `city` varchar(255) DEFAULT NULL,
   `country` varchar(255) DEFAULT NULL,
@@ -173,13 +173,13 @@ CREATE TABLE `user` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `user`
+-- Dumping data for table `User`
 --
 
-LOCK TABLES `user` WRITE;
-/*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES ('bob@gmail.com','NANTES','FRANCE',21,'Paul Bellamy',44000,'Bob','','secret'),('jeff@gmail.com','NANTES','FRANCE',42,'Guichard',44100,'Jeff','\0','secret'),('paul@gmail.com','PARSI','FRANCE',51,'Hauffman',75000,'Paul','\0','secret'),('',NULL,'',NULL,NULL,NULL,NULL,'\0',NULL);
-/*!40000 ALTER TABLE `user` ENABLE KEYS */;
+LOCK TABLES `User` WRITE;
+/*!40000 ALTER TABLE `User` DISABLE KEYS */;
+INSERT INTO `User` VALUES ('bob@gmail.com','NANTES','FRANCE',21,'Paul Bellamy',44000,'Bob','\0','secret'),('jeff@gmail.com','NANTES','FRANCE',42,'Guichard',44100,'Jeff','\0','secret'),('paul@gmail.com','PARSI','FRANCE',51,'Hauffman',75000,'Paul','\0','secret'),('',NULL,'',NULL,NULL,NULL,NULL,'\0',NULL);
+/*!40000 ALTER TABLE `User` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
