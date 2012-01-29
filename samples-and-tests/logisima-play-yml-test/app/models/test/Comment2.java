@@ -31,6 +31,6 @@ public class Comment2 extends Model implements java.lang.Comparable {
     @Override
     public int compareTo(Object o) {
         Comment2 cmt = (Comment2) o;
-        return postedAt.compareTo(cmt.postedAt);
+        return content.compareTo(cmt.content);
     }
 }

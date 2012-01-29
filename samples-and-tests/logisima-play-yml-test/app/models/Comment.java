@@ -34,7 +34,7 @@ public class Comment extends Model implements java.lang.Comparable {
         if (!this.author.equals(comment.author)) {
             return NOT_EQUAL;
         }
-        if (!this.postedAt.equals(comment.postedAt)) {
+        if (this.postedAt != null && !this.postedAt.equals(comment.postedAt)) {
             return NOT_EQUAL;
         }
         if (!this.content.equals(comment.content)) {
@@ -49,7 +49,7 @@ public class Comment extends Model implements java.lang.Comparable {
     @Override
     public int compareTo(Object o) {
         Comment cmt = (Comment) o;
-        return postedAt.compareTo(cmt.postedAt);
+        return content.compareTo(cmt.content);
     }
 
 }
