@@ -183,10 +183,13 @@ public class YmlExtractorUtil {
                         if (!myList.isEmpty() && myList.size() > 0) {
                             String[] tmpValues = new String[myList.size()];
                             for (int i = 0; i < myList.size(); i++) {
-                                tmpValues[i] = getObjectId(myList.get(i));
                                 // if myObj is an entity, we add it to children
                                 if (GenericModel.class.isInstance(myList.get(i))) {
+                                    tmpValues[i] = getObjectId(myList.get(i));
                                     ymlObject.getChildren().add(getObjectId(myList.get(i)));
+                                }
+                                else {
+                                    tmpValues[i] = myList.get(i).toString();
                                 }
                             }
                             data.put(name, tmpValues);
@@ -204,12 +207,15 @@ public class YmlExtractorUtil {
                             int i = 0;
                             while (it.hasNext()) {
                                 Object myObj = it.next();
-                                tmpValues[i] = getObjectId(myObj);
                                 // if myObj is an entity, we add it to children
                                 if (myObj != null && GenericModel.class.isInstance(myObj)) {
+                                    tmpValues[i] = getObjectId(myObj);
                                     if (getObjectId(myObj) != null) {
                                         ymlObject.getChildren().add(getObjectId(myObj));
                                     }
+                                }
+                                else {
+                                    tmpValues[i] = myObj.toString();
                                 }
                                 i++;
                             }
@@ -228,12 +234,15 @@ public class YmlExtractorUtil {
                             int i = 0;
                             while (it.hasNext()) {
                                 Object myObj = it.next();
-                                tmpValues[i] = getObjectId(myObj);
                                 // if myObj is an entity, we add it to children
                                 if (myObj != null && GenericModel.class.isInstance(myObj)) {
+                                    tmpValues[i] = getObjectId(myObj);
                                     if (getObjectId(myObj) != null) {
                                         ymlObject.getChildren().add(getObjectId(myObj));
                                     }
+                                }
+                                else {
+                                    tmpValues[i] = myObj.toString();
                                 }
                                 i++;
                             }
@@ -370,7 +379,9 @@ public class YmlExtractorUtil {
                 }
             }
             if (fieldId != null) {
-                objectId = fieldId.get(jpaBase).toString();
+                objectId = getObjectClassName(object);
+                objectId += "_";
+                objectId += fieldId.get(jpaBase).toString();
             }
         }
 

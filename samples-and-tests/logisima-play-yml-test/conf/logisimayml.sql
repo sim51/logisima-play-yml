@@ -59,7 +59,7 @@ CREATE TABLE `Comment2` (
   PRIMARY KEY (`id`),
   KEY `FKDFF241D3407F0A34` (`post_id`),
   CONSTRAINT `FKDFF241D3407F0A34` FOREIGN KEY (`post_id`) REFERENCES `Post2` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -68,7 +68,6 @@ CREATE TABLE `Comment2` (
 
 LOCK TABLES `Comment2` WRITE;
 /*!40000 ALTER TABLE `Comment2` DISABLE KEYS */;
-INSERT INTO `Comment2` VALUES (1,'Tom','This post is useless ?\n',NULL,3),(2,'Mike','I knew that ...\n',NULL,2),(3,'Guest','You are right !\n',NULL,2);
 /*!40000 ALTER TABLE `Comment2` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -119,7 +118,7 @@ CREATE TABLE `Date2` (
   `date3` time DEFAULT NULL,
   `date4` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -128,7 +127,6 @@ CREATE TABLE `Date2` (
 
 LOCK TABLES `Date2` WRITE;
 /*!40000 ALTER TABLE `Date2` DISABLE KEYS */;
-INSERT INTO `Date2` VALUES (1,'2009-07-25 13:42:51','2010-07-26','2011-07-25 13:42:51','2012-07-25 13:49:42','2013-07-25','13:49:42','2014-07-25 13:49:42');
 /*!40000 ALTER TABLE `Date2` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -176,7 +174,7 @@ CREATE TABLE `Post2` (
   PRIMARY KEY (`id`),
   KEY `FK49B8B727D09C337` (`author_email`),
   CONSTRAINT `FK49B8B727D09C337` FOREIGN KEY (`author_email`) REFERENCES `User2` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -185,7 +183,6 @@ CREATE TABLE `Post2` (
 
 LOCK TABLES `Post2` WRITE;
 /*!40000 ALTER TABLE `Post2` DISABLE KEYS */;
-INSERT INTO `Post2` VALUES (1,'A Play! application follows the MVC architectural pattern as applied to the architecture of the Web.\nThis pattern splits the application into separate layers: the Presentation layer and the Model layer. The Presentation layer is further split into a View and a Controller layer.\n','2009-06-06 02:00:00','The MVC application','jeff@gmail.com'),(2,'The model has a central position in a Play! application. It is the domain-specific representation of the information on which the application operates.\nMartin fowler defines it as :\nResponsible for representing concepts of the business, information about the business situation, and business rules. State that reflects the business situation is controlled and used here, even though the technical details of storing it are delegated to the infrastructure. This layer is the heart of business software.\n','2009-06-14 02:00:00','About the model layer','bob@gmail.com'),(3,'Well, it\'s just a test.\n','2009-03-25 01:00:00','Just a test of YABE','bob@gmail.com');
 /*!40000 ALTER TABLE `Post2` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -277,7 +274,7 @@ CREATE TABLE `Tag2` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -286,7 +283,6 @@ CREATE TABLE `Tag2` (
 
 LOCK TABLES `Tag2` WRITE;
 /*!40000 ALTER TABLE `Tag2` DISABLE KEYS */;
-INSERT INTO `Tag2` VALUES (1,'Test'),(2,'MVC'),(3,'Play'),(4,'Architecture');
 /*!40000 ALTER TABLE `Tag2` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -348,8 +344,54 @@ CREATE TABLE `User2` (
 
 LOCK TABLES `User2` WRITE;
 /*!40000 ALTER TABLE `User2` DISABLE KEYS */;
-INSERT INTO `User2` VALUES ('bob@gmail.com','NANTES','FRANCE',21,'Paul Bellamy',44000,'Bob','\0','secret'),('jeff@gmail.com','NANTES','FRANCE',42,'Guichard',44100,'Jeff','\0','secret'),('paul@gmail.com','PARSI','FRANCE',51,'Hauffman',75000,'Paul','\0','secret');
 /*!40000 ALTER TABLE `User2` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `User2_badges`
+--
+
+DROP TABLE IF EXISTS `User2_badges`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `User2_badges` (
+  `User2_email` varchar(255) NOT NULL,
+  `badges` int(11) DEFAULT NULL,
+  KEY `FK7056DEC8DFB81273` (`User2_email`),
+  CONSTRAINT `FK7056DEC8DFB81273` FOREIGN KEY (`User2_email`) REFERENCES `User2` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `User2_badges`
+--
+
+LOCK TABLES `User2_badges` WRITE;
+/*!40000 ALTER TABLE `User2_badges` DISABLE KEYS */;
+/*!40000 ALTER TABLE `User2_badges` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `User_badges`
+--
+
+DROP TABLE IF EXISTS `User_badges`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `User_badges` (
+  `User_email` varchar(255) NOT NULL,
+  `badges` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `User_badges`
+--
+
+LOCK TABLES `User_badges` WRITE;
+/*!40000 ALTER TABLE `User_badges` DISABLE KEYS */;
+INSERT INTO `User_badges` VALUES ('bob@gmail.com',1),('bob@gmail.com',2),('bob@gmail.com',3),('jeff@gmail.com',2),('paul@gmail.com',3);
+/*!40000 ALTER TABLE `User_badges` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -361,4 +403,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-01-29 21:57:27
+-- Dump completed on 2012-01-30 21:31:41

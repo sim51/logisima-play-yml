@@ -1,5 +1,9 @@
 package models;
 
+import java.util.EnumSet;
+import java.util.Set;
+
+import javax.persistence.ElementCollection;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -11,21 +15,23 @@ import play.db.jpa.GenericModel;
 public class User extends GenericModel implements java.lang.Comparable {
 
     @Id
-    public String  email;
+    public String     email;
 
-    public String  password;
+    public String     password;
 
-    public String  fullname;
+    public String     fullname;
 
     @Embedded
-    public Address addess;
+    public Address    addess;
 
-    public boolean isAdmin;
+    public boolean    isAdmin;
+
+    @ElementCollection
+    public Set<Badge> badges = EnumSet.noneOf(Badge.class);
 
     public int compareTo(User2 user) {
         final int NOT_EQUAL = -1;
         final int EQUAL = 0;
-
         if (!this.email.equals(user.email)) {
             return NOT_EQUAL;
         }
@@ -39,6 +45,9 @@ public class User extends GenericModel implements java.lang.Comparable {
             return NOT_EQUAL;
         }
         if (this.addess.compareTo(user.addess) != 0) {
+            return NOT_EQUAL;
+        }
+        if (this.badges.size() != user.badges.size()) {
             return NOT_EQUAL;
         }
         return EQUAL;
