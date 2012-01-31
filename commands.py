@@ -44,7 +44,7 @@ def execute(**kargs):
         print "~     with --output you can specify the directory where yaml file will be written (conf by default)"
         print "~ import         Import an yaml file (conf/data.yml by default) to database"
         print "~     with --filename you can specify the yaml filename file (without the yml extension !)"
-        print "~     with --input you can specify the directory where yaml file will be read (conf by default)"
+        print "~     with --reset option you can specify to delete all the database before importing yml file"
         print       
         sys.exit(0)
     

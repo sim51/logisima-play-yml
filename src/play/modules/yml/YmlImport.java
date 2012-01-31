@@ -18,10 +18,12 @@ package play.modules.yml;
 
 import java.beans.PropertyVetoException;
 import java.io.File;
+import java.lang.reflect.Method;
 
-import javax.persistence.EntityManager;
-
+import play.Logger;
 import play.Play;
+import play.db.DBPlugin;
+import play.db.jpa.JPAPlugin;
 import play.test.Fixtures;
 
 /**
@@ -39,21 +41,14 @@ public class YmlImport {
      * @throws PropertyVetoException
      */
     public static void main(String[] args) throws Exception {
-        // we initiate play! framework
-        File root = new File(System.getProperty("application.path"));
-        Play.init(root, System.getProperty("play.id", ""));
 
         // we retrieve parameters
         String filename = "data";
-        String input = "conf";
         Boolean reset = false;
         for (int i = 0; i < args.length; i++) {
             if (args[i].startsWith("--")) {
                 if (args[i].startsWith("--filename=")) {
                     filename = args[i].substring(11);
-                }
-                if (args[i].startsWith("--input=")) {
-                    input = args[i].substring(9);
                 }
                 if (args[i].startsWith("--reset")) {
                     reset = true;
@@ -61,11 +56,31 @@ public class YmlImport {
             }
         }
 
-        // get an entityManager to acces play DB
-        EntityManager em = YmlExtractorUtil.iniateJPA();
+        // initiate play! framework
+        File root = new File(System.getProperty("application.path"));
+        Play.init(root, System.getProperty("play.id", ""));
+        Thread.currentThread().setContextClassLoader(Play.classloader);
+        Class c = Play.classloader.loadClass("play.modules.yml.YmlImport");
+        Method m = c.getMethod("mainWork", String.class, String.class, Boolean.class);
+        m.invoke(c.newInstance(), filename, reset);
+        System.exit(0);
+
+    }
+
+    public static void mainWork(String filename, Boolean reset) {
+        // starting play DB plugin
+        new DBPlugin().onApplicationStart();
+        new JPAPlugin().onApplicationStart();
+        JPAPlugin.startTx(true);
         if (reset) {
             Fixtures.deleteAll();
         }
         Fixtures.load(filename + ".yml");
+        JPAPlugin.closeTx(false);
+
+        // ending log
+        Logger.info("*****************************************************************************");
+        Logger.info("* Ending import yml process from file " + filename + ".yml");
+        Logger.info("*****************************************************************************");
     }
 }

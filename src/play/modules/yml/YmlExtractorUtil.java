@@ -16,11 +16,9 @@
  */
 package play.modules.yml;
 
-import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
@@ -32,22 +30,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.Set;
 
 import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 
-import org.apache.log4j.Level;
 import org.hibernate.Hibernate;
-import org.hibernate.ejb.Ejb3Configuration;
 import org.hibernate.proxy.HibernateProxy;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -58,9 +50,6 @@ import play.db.jpa.GenericModel;
 import play.db.jpa.JPABase;
 import play.db.jpa.Model;
 import play.modules.yml.models.YmlObject;
-import play.utils.Utils;
-
-import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 /**
  * Util class for logisima-yml module.
@@ -432,70 +421,4 @@ public class YmlExtractorUtil {
         return bool;
     }
 
-    /**
-     * Method that return a Play EntytManager. Note: this method is a copy of play! framework code.
-     * 
-     * @return EntityManager
-     * @throws PropertyVetoException
-     */
-    public static EntityManager iniateJPA() throws PropertyVetoException {
-        Properties p = Play.configuration;
-        ComboPooledDataSource ds = new ComboPooledDataSource();
-        ds.setDriverClass(p.getProperty("db.driver"));
-        ds.setJdbcUrl(p.getProperty("db.url"));
-        ds.setUser(p.getProperty("db.user"));
-        ds.setPassword(p.getProperty("db.pass"));
-        ds.setAcquireRetryAttempts(1);
-        ds.setAcquireRetryDelay(0);
-        ds.setCheckoutTimeout(Integer.parseInt(p.getProperty("db.pool.timeout", "5000")));
-        ds.setBreakAfterAcquireFailure(true);
-        ds.setMaxPoolSize(Integer.parseInt(p.getProperty("db.pool.maxSize", "30")));
-        ds.setMinPoolSize(Integer.parseInt(p.getProperty("db.pool.minSize", "1")));
-        ds.setTestConnectionOnCheckout(true);
-
-        List<Class> classes = Play.classloader.getAnnotatedClasses(Entity.class);
-        Ejb3Configuration cfg = new Ejb3Configuration();
-        cfg.setDataSource(ds);
-        if (!Play.configuration.getProperty("jpa.ddl", "update").equals("none")) {
-            cfg.setProperty("hibernate.hbm2ddl.auto", Play.configuration.getProperty("jpa.ddl", "update"));
-        }
-        cfg.setProperty("hibernate.dialect", getDefaultDialect(Play.configuration.getProperty("jpa.dialect")));
-        cfg.setProperty("javax.persistence.transaction", "RESOURCE_LOCAL");
-        if (Play.configuration.getProperty("jpa.debugSQL", "false").equals("true")) {
-            org.apache.log4j.Logger.getLogger("org.hibernate.SQL").setLevel(Level.ALL);
-        }
-        else {
-            org.apache.log4j.Logger.getLogger("org.hibernate.SQL").setLevel(Level.OFF);
-        }
-        // inject additional hibernate.* settings declared in Play!
-        // configuration
-        cfg.addProperties((Properties) Utils.Maps.filterMap(Play.configuration, "^hibernate\\..*"));
-
-        try {
-            Field field = cfg.getClass().getDeclaredField("overridenClassLoader");
-            field.setAccessible(true);
-            field.set(cfg, Play.classloader);
-        } catch (Exception e) {
-            Logger.error(e, "Error trying to override the hibernate classLoader (new hibernate version ???)");
-        }
-        for (Class<? extends Annotation> clazz : classes) {
-            if (clazz.isAnnotationPresent(Entity.class)) {
-                cfg.addAnnotatedClass(clazz);
-                Logger.trace("JPA Model : %s", clazz);
-            }
-        }
-        String[] moreEntities = Play.configuration.getProperty("jpa.entities", "").split(", ");
-        for (String entity : moreEntities) {
-            if (entity.trim().equals(""))
-                continue;
-            try {
-                cfg.addAnnotatedClass(Play.classloader.loadClass(entity));
-            } catch (Exception e) {
-                Logger.warn("JPA -> Entity not found: %s", entity);
-            }
-        }
-        Logger.trace("Initializing JPA ...");
-        EntityManagerFactory entityManagerFactory = cfg.buildEntityManagerFactory();
-        return entityManagerFactory.createEntityManager();
-    }
 }

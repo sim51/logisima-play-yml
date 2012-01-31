@@ -17,16 +17,20 @@
 package play.modules.yml;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Entity;
-import javax.persistence.EntityManager;
 
+import play.Logger;
 import play.Play;
+import play.db.DBPlugin;
+import play.db.jpa.JPA;
 import play.db.jpa.JPABase;
+import play.db.jpa.JPAPlugin;
 import play.modules.yml.models.YmlObject;
 
 /**
@@ -51,10 +55,6 @@ public class YmlExtractor {
      */
     public static void main(String[] args) throws Exception {
 
-        // we initiate play! framework
-        File root = new File(System.getProperty("application.path"));
-        Play.init(root, System.getProperty("play.id", ""));
-
         // we retrieve parameters
         String filename = "data";
         String output = "conf/";
@@ -68,29 +68,44 @@ public class YmlExtractor {
                 }
             }
         }
-        mainWork(filename, output);
 
+        // initiate play! framework
+        File root = new File(System.getProperty("application.path"));
+        Play.init(root, System.getProperty("play.id", ""));
+        Thread.currentThread().setContextClassLoader(Play.classloader);
+        Class c = Play.classloader.loadClass("play.modules.yml.YmlExtractor");
+        Method m = c.getMethod("mainWork", String.class, String.class);
+        m.invoke(c.newInstance(), filename, output);
+        System.exit(0);
     }
 
     public static void mainWork(String filename, String output) throws Exception {
-        // get an entityManager to acces play DB
-        EntityManager em = YmlExtractorUtil.iniateJPA();
+        // starting play DB plugin
+        new DBPlugin().onApplicationStart();
+        new JPAPlugin().onApplicationStart();
+        JPAPlugin.startTx(true);
 
         // we search all entities classes
         List<Class> entities = Play.classloader.getAnnotatedClasses(Entity.class);
         for (Class entity : entities) {
             // we search all object for the specified class
-            List<JPABase> objects = (List<JPABase>) em.createQuery("SELECT E FROM " + entity.getSimpleName() + " E")
-                    .getResultList();
+            List<JPABase> objects = (List<JPABase>) JPA.em()
+                    .createQuery("SELECT E FROM " + entity.getSimpleName() + " E").getResultList();
 
             for (JPABase jpaBase : objects) {
                 YmlObject ymlObject = YmlExtractorUtil.object2YmlObject(jpaBase);
                 ymlObjects.put(YmlExtractorUtil.getObjectId(jpaBase), ymlObject);
             }
         }
+        JPAPlugin.closeTx(false);
 
         // write yml file.
         YmlExtractorUtil.writeYml(output, filename);
+
+        // ending log
+        Logger.info("*****************************************************************************");
+        Logger.info("* Ending export yml process into file " + output + filename + ".yml");
+        Logger.info("*****************************************************************************");
     }
 
 }
