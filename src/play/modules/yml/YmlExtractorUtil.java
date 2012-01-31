@@ -21,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -135,6 +136,7 @@ public class YmlExtractorUtil {
         DumperOptions options = new DumperOptions();
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         options.setCanonical(false);
+        options.setDefaultScalarStyle(DumperOptions.ScalarStyle.DOUBLE_QUOTED);
         Yaml yaml = new Yaml(options);
 
         // Initialization of YmlObject
@@ -158,7 +160,8 @@ public class YmlExtractorUtil {
 
             String name = field.getName();
 
-            if (!name.equals("id") && !name.equals("willBeSaved") && !isFieldHasMappedByInAnnotation(field)) {
+            if (!Modifier.isStatic(field.getModifiers()) && !name.equals("id") && !name.equals("willBeSaved")
+                    && !isFieldHasMappedByInAnnotation(field)) {
 
                 Boolean valueIsSet = Boolean.FALSE;
                 Logger.debug("Generated field " + name);
