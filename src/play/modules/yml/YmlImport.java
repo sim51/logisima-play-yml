@@ -61,7 +61,7 @@ public class YmlImport {
         Play.init(root, System.getProperty("play.id", ""));
         Thread.currentThread().setContextClassLoader(Play.classloader);
         Class c = Play.classloader.loadClass("play.modules.yml.YmlImport");
-        Method m = c.getMethod("mainWork", String.class, String.class, Boolean.class);
+        Method m = c.getMethod("mainWork", String.class, Boolean.class);
         m.invoke(c.newInstance(), filename, reset);
         System.exit(0);
 

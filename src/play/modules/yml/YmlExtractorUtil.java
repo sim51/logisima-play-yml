@@ -43,6 +43,7 @@ import javax.persistence.Temporal;
 import org.hibernate.Hibernate;
 import org.hibernate.proxy.HibernateProxy;
 import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.DumperOptions.ScalarStyle;
 import org.yaml.snakeyaml.Yaml;
 
 import play.Logger;
@@ -114,6 +115,9 @@ public class YmlExtractorUtil {
             ymlText += object.getYmlValue();
             // a hack for embedded object and !!class
             ymlText = ymlText.replaceAll("!!models.*", "");
+            // a hack to convert braces into unicode due to groovy template
+            ymlText = ymlText.replaceAll("[{]", "\\\\u007B");
+            ymlText = ymlText.replaceAll("[}]", "\\\\u007D");
         }
         return ymlText;
     }
@@ -135,8 +139,9 @@ public class YmlExtractorUtil {
         // Init YAML
         DumperOptions options = new DumperOptions();
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        options.setDefaultScalarStyle(ScalarStyle.DOUBLE_QUOTED);
         options.setCanonical(false);
-        options.setDefaultScalarStyle(DumperOptions.ScalarStyle.DOUBLE_QUOTED);
+        options.setAllowUnicode(true);
         Yaml yaml = new Yaml(options);
 
         // Initialization of YmlObject
@@ -145,8 +150,8 @@ public class YmlExtractorUtil {
 
         // String value for the object
         String stringObject = "\n" + getObjectClassName(jpaBase) + "(" + getObjectId(jpaBase) + "):\n";
-        Logger.info("Generate YML for class id :" + getObjectId(jpaBase) + "(" + jpaBase.getClass().getFields().length
-                + "fields)");
+        Logger.info("Generate YML for class id :" + getObjectId(jpaBase) + " (" + jpaBase.getClass().getFields().length
+                + " fields)");
 
         // if class is a javassist class
         if (jpaBase.getClass().getCanonicalName().contains("_$$_")) {
@@ -335,7 +340,7 @@ public class YmlExtractorUtil {
      * @return real className
      */
     public static String getObjectClassName(Object object) {
-        String classname = object.getClass().getSimpleName();
+        String classname = object.getClass().getName();
         if (classname.contains("_$$_")) {
             classname = classname.split("_")[0];
         }
@@ -358,6 +363,7 @@ public class YmlExtractorUtil {
             // we take the model id
             Model myModel = ((Model) jpaBase);
             objectId = getObjectClassName(object);
+            objectId = objectId.replaceAll("[.]", "_");
             objectId += "_";
             objectId += myModel.getId();
         }
@@ -372,6 +378,7 @@ public class YmlExtractorUtil {
             }
             if (fieldId != null) {
                 objectId = getObjectClassName(object);
+                objectId = objectId.replaceAll("[.]", "_");
                 objectId += "_";
                 objectId += fieldId.get(jpaBase).toString();
             }

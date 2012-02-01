@@ -14,20 +14,22 @@ import play.db.jpa.GenericModel;
 @Entity
 public class User extends GenericModel implements java.lang.Comparable {
 
+    public static final String MENTION_FORMAT = "$LINKIT${%s}";
+
     @Id
-    public String     email;
+    public String              email;
 
-    public String     password;
+    public String              password;
 
-    public String     fullname;
+    public String              fullname;
 
     @Embedded
-    public Address    addess;
+    public Address             addess;
 
-    public boolean    isAdmin;
+    public boolean             isAdmin;
 
     @ElementCollection
-    public Set<Badge> badges = EnumSet.noneOf(Badge.class);
+    public Set<Badge>          badges         = EnumSet.noneOf(Badge.class);
 
     public int compareTo(User2 user) {
         final int NOT_EQUAL = -1;
